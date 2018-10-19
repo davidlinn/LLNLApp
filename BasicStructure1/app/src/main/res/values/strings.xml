@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Tau App</string>
+    <string name="title_home">Home</string>
+    <string name="earned">You have earned</string>
+</resources>
