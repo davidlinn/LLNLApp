@@ -1,4 +1,4 @@
-package com.example.david.myfirstapp;
+package com.example.david.alpha;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
