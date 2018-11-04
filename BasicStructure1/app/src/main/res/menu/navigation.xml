@@ -13,8 +13,16 @@
         android:title="Puzzles" />
 
     <item
-        android:id="@+id/navigation_qrCodes"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="QR Codes" />
+        android:id="@+id/navigation_navigate"
+        android:icon="@drawable/navigate"
+        android:title="Navigate" />
+    <item
+        android:id="@+id/navigation_qrScanner"
+        android:icon="@drawable/qr"
+        android:title="QR Scanner"></item>
+    <item
+        android:id="@+id/navigation_leaderboard"
+        android:icon="@drawable/leaderboard"
+        android:title="Leaderboard" />
 
 </menu>

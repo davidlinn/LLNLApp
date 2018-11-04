@@ -1,11 +1,15 @@
 package com.example.david.alpha;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.google.android.gms.common.api.CommonStatusCodes;
 
 public class Navigation extends AppCompatActivity {
 
@@ -23,8 +27,15 @@ public class Navigation extends AppCompatActivity {
                 case R.id.navigation_puzzles:
                     mTextMessage.setText("Puzzles");
                     return true;
-                case R.id.navigation_qrCodes:
-                    mTextMessage.setText("QR Codes");
+                case R.id.navigation_qrScanner:
+                    mTextMessage.setText("QR Scanner");
+                    return true;
+                case R.id.navigation_navigate:
+                    Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.navigation_leaderboard:
+                    mTextMessage.setText("In development");
                     return true;
             }
             return false;
