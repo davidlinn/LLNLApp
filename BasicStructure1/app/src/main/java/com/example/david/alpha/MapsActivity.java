@@ -33,11 +33,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    SupportMapFragment mapFrag;
-    LocationRequest mLocationRequest;
-    Location mLastLocation;
-    Marker mCurrLocationMarker;
-    FusedLocationProviderClient mFusedLocationClient;
+    private SupportMapFragment mapFrag;
+    private LocationRequest mLocationRequest;
+    private Location mLastLocation;
+    private Marker mCurrLocationMarker;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private int locationRequests = 0;
+    public LatLng myPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(100); // ten-second update interval.
@@ -101,10 +103,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     LocationCallback mLocationCallback = new LocationCallback() {
+
         @Override
         public void onLocationResult(LocationResult locationResult) {
             List<Location> locationList = locationResult.getLocations();
             if (locationList.size() > 0) {
+                locationRequests++;
                 //The last location in the list is the newest
                 Location location = locationList.get(locationList.size() - 1);
                 Log.d("MapsActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
@@ -115,14 +119,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 //Place current location marker
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                myPos = latLng;
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
                 markerOptions.title("Current Position");
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                 mCurrLocationMarker = mMap.addMarker(markerOptions);
 
-                //move map camera
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+                if (locationRequests == 1) {
+                    //move map camera
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPos, 17));
+                }
+
             }
         }
     };
