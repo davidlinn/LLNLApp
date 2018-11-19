@@ -9,19 +9,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.david.alpha.barcode.BarcodeCaptureActivity;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class QRActivity extends AppCompatActivity {
     private static final String LOG_TAG = QRActivity.class.getSimpleName();
@@ -65,46 +63,35 @@ public class QRActivity extends AppCompatActivity {
     }
 
     protected void groundTruth(String qrResult) {
-        //Gather data to be sent to Google Sheet
-
-        //Build JSON Object to be sent
-        JSONObject jsonObj = new JSONObject();
         try {
-            jsonObj.put("Sheet", qrResult.substring(0, 4));
-            jsonObj.put("Stop", qrResult.substring(4,6));
-            jsonObj.put("Lat", 1);
-            jsonObj.put("Long", 2);
-            jsonObj.put("SensorID", "XXX");
-        }
-        catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+            //Create queue that accepts requests
+            RequestQueue queue = Volley.newRequestQueue(this);
+            //Build URL and query string from JSON object
+            String url = getApplicationContext().getString(R.string.ground_truth_script_url);
+            url += '?';
+            url += "Sheet=" + qrResult.substring(0, 4) + '&';
+            url += "Stop=" + qrResult.substring(4,6) + '&';
+            url += "Lat=" + 1 + '&';
+            url += "Long=" + 2 + '&';
+            url += "SensorID=" + "XXX";
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
-        //Send JSON Object to Google Sheet
-        try {
-            URL url = new URL(getApplicationContext().getString(R.string.ground_truth_script_url));
-            Log.e("URL: ",url.toString());
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-            //conn.connect()
-            final OutputStream outputStream = conn.getOutputStream();
-            outputStream.write(jsonObj.toString().getBytes("UTF-8"));
-            outputStream.flush();
-            final InputStream inputStream = conn.getInputStream();
-//            String url = getApplicationContext().getString(R.string.ground_truth_script_url);
-//            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-//                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-//
-//                        @Override
-//                        public void onResponse(JSONObject response) { }
-//                    }, new Response.ErrorListener() {
-//
-//                        @Override
-//                        public void onErrorResponse(VolleyError error) { }
-//                    });
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            String str = response.toString();
+                            mResultTextView.setText("Response is: "+ str.substring(0,Math.min(str.length(),500)));
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            mResultTextView.setText("Error in JSON Request");
+                        }
+                    });
+            queue.add(jsonObjectRequest);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
 
