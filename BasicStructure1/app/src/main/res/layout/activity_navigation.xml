@@ -24,16 +24,16 @@
 
     <TextView
         android:id="@+id/message2"
-        android:layout_width="121dp"
+        android:layout_width="122dp"
         android:layout_height="60dp"
         android:layout_marginLeft="56dp"
-        android:layout_marginTop="212dp"
+        android:layout_marginTop="248dp"
         android:height="8dp"
         android:text="points!"
         android:textSize="25sp"
         app:fontFamily="serif"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

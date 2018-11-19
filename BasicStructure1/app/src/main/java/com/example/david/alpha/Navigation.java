@@ -19,6 +19,8 @@ public class Navigation extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    Intent homeIntent = new Intent(getApplicationContext(), ActiveHoursActivity.class);
+                    startActivity(homeIntent);
                     mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_puzzles:
