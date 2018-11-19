@@ -41,6 +41,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <activity android:name=".ActiveHoursActivity"
+            android:label="Home">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.david.alpha.Navigation" />
+        </activity>
+
         <activity
             android:name=".MapsActivity"
             android:label="Maps">

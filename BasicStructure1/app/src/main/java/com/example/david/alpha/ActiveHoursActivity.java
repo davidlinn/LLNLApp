@@ -2,7 +2,9 @@ package com.example.david.alpha;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.hardware.SensorEventListener2;
 import android.location.Location;
+import android.support.v7.app.AppCompatActivity;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
@@ -12,7 +14,7 @@ import android.util.Log;
 
 import java.util.Set;
 
-public class ActiveHoursActivity {
+public class ActiveHoursActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorMan;
     private Sensor accelerometer;
@@ -23,6 +25,10 @@ public class ActiveHoursActivity {
     private double mAccelLast;
 
     private boolean sensorRegistered = false;
+
+    public void onAccuracyChanged(Sensor sensor, int num) {
+
+    }
 
     public void onCreate(Context context) {
         sensorMan = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
@@ -45,6 +51,7 @@ public class ActiveHoursActivity {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        Log.d("ActiveHours: ", "Sensor Event Detected");
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             mGravity = event.values.clone();
             double x = mGravity[0];
@@ -63,9 +70,9 @@ public class ActiveHoursActivity {
 
                 Log.d("Sensor", String.valueOf(hitResult));
                 if (hitResult > THRESHOLD) {
-                    Log.d("Sensor:", "Walking");
+                    Log.d("Accelerometer: ", "Walking");
                 } else {
-                    Log.d("Sensor:", "Not Walking");
+                    Log.d("Accelerometer: ", "Not Walking");
                 }
 
                 hitCount = 0;
@@ -74,6 +81,7 @@ public class ActiveHoursActivity {
             }
         }
     }
+
 
     public static boolean checkAttached(Location location) {
         boolean deviceAttached = false;
