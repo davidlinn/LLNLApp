@@ -2,12 +2,11 @@ package com.example.david.alpha;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.location.Location;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorManager;
+import android.location.Location;
 import android.util.Log;
 
 import java.util.Set;
@@ -31,8 +30,8 @@ public class ActiveHoursActivity {
         mAccelCurrent = SensorManager.GRAVITY_EARTH;
         mAccelLast = SensorManager.GRAVITY_EARTH;
 
-        sensorMan.registerListener(this, accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorMan.registerListener(this, accelerometer,
+        //        SensorManager.SENSOR_DELAY_NORMAL);
         sensorRegistered = true;
     }
 
@@ -43,7 +42,7 @@ public class ActiveHoursActivity {
     private final int SAMPLE_SIZE = 50;
     private final double THRESHOLD = 0.2;
 
-    @Override
+    //@Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             mGravity = event.values.clone();
