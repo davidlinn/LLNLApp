@@ -81,23 +81,20 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         }
     }
 
-
+    //David Edit 11/21: Simplified logic and ensured sensors that don't start with
+    //  but contain "SGM" are included
     public static boolean checkAttached(Location location) {
-        boolean deviceAttached = false;
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
         for (BluetoothDevice bt : pairedDevices) {
             String bluetoothDevice = bt.getName();
-            if (bluetoothDevice.substring(0,3) == "SGM") {
-                deviceAttached = true;
-                break;
-            }
-            else{
-                continue;
+            int startingIndex = bluetoothDevice.indexOf("SGM");
+            if (startingIndex != -1) {
+                return true;
             }
         }
-        return deviceAttached;
+        return false;
     }
 
 }

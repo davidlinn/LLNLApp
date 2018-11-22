@@ -4,7 +4,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Point;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,10 +19,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.david.alpha.barcode.BarcodeCaptureActivity;
 import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.vision.barcode.Barcode;
 
 import org.json.JSONException;
@@ -31,7 +26,6 @@ import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 public class QRActivity extends AppCompatActivity {
@@ -39,9 +33,6 @@ public class QRActivity extends AppCompatActivity {
     private static final int BARCODE_READER_REQUEST_CODE = 1;
 
     private TextView mResultTextView;
-    LocationRequest mLocationRequest;
-    Location mLastLocation;
-    FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,22 +49,6 @@ public class QRActivity extends AppCompatActivity {
                 startActivityForResult(intent, BARCODE_READER_REQUEST_CODE);
             }
         });
-
-        //Start location updating as soon as activity started
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(100); // one-second update interval.
-        mLocationRequest.setFastestInterval(10); // 10ms upper limit
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //stop location updates when Activity is no longer active
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
     }
 
     @Override
@@ -105,16 +80,12 @@ public class QRActivity extends AppCompatActivity {
             String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
             url += "LocalTime=" + currentDateTimeString + '&'; //TO DO: Remove spaces in Date/Time
             url += "Stop=" + qrResult.substring(4,6) + '&';
-            long loopStartTime = System.currentTimeMillis();
-            long loopTimeLimit = 3000; //3 secs
-            while (mLastLocation == null && System.currentTimeMillis()-loopStartTime < loopTimeLimit);
-            if (mLastLocation != null) {
-                url += "Lat=" + mLastLocation.getLatitude() + '&'; //TO DO: More accurate GPS Position
-                url += "Long=" + mLastLocation.getLongitude() + '&';
+            if (MapsActivity.myPos != null) {
+                url += "Lat=" + MapsActivity.myPos.latitude + '&'; //TO DO: More accurate GPS Position
+                url += "Long=" + MapsActivity.myPos.longitude + '&';
             }
             url += "SensorID=" + getSensorID();
             url = ensureValidURL(url);
-            Log.e("QRActivity URL",url);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -124,7 +95,7 @@ public class QRActivity extends AppCompatActivity {
                             Log.e("QR JSON response",str);
                             boolean result = false;
                             try {
-                                result = (response.getString("result") == "success");
+                                result = response.getString("result").equals("success");
                             }
                             catch (JSONException exception) {
                                 mResultTextView.setText("JSON String returned by server has no field 'result'.");
@@ -155,27 +126,13 @@ public class QRActivity extends AppCompatActivity {
 
         for (BluetoothDevice bt : pairedDevices) {
             String bluetoothDevice = bt.getName();
-            if (bluetoothDevice.length() >= 3) {
-                if (bluetoothDevice.substring(0, 3) == "SGM") {
-                    return bluetoothDevice;
-                }
+            int startingIndex = bluetoothDevice.indexOf("SGM");
+            if (startingIndex != -1) {
+                return bluetoothDevice.substring(startingIndex);
             }
         }
         return "NoSensorConnected";
     }
-
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            List<Location> locationList = locationResult.getLocations();
-            if (locationList.size() > 0) {
-                //The last location in the list is the newest
-                Location location = locationList.get(locationList.size() - 1);
-                Log.i("QRActivity", "Location: " + location.getLatitude() + " " + location.getLongitude());
-                mLastLocation = location;
-            }
-        }
-    };
 
     public static String ensureValidURL(String url) {
         //Turn all spaces in String into '+' characters

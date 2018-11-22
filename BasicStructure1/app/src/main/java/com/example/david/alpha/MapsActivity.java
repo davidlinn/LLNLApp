@@ -39,7 +39,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Marker mCurrLocationMarker;
     private FusedLocationProviderClient mFusedLocationClient;
     private int locationRequests = 0;
-    public LatLng myPos;
+    public static LatLng myPos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
