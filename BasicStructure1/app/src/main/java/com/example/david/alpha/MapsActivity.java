@@ -92,15 +92,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        //stop location updates when Activity is no longer active
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
-    }
+   // @Override
+   // public void onPause() {
+   //     super.onPause();
+//
+//        //stop location updates when Activity is no longer active
+//        if (mFusedLocationClient != null) {
+//            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+//        }
+//    }
 
     LocationCallback mLocationCallback = new LocationCallback() {
 
