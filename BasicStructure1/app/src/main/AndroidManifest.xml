@@ -42,11 +42,7 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".ActiveHoursActivity"
-<<<<<<< HEAD
             android:label="Scoring">
-=======
-            android:label="Home">
->>>>>>> c42ac8e2afb8aa95143661573eb321f6b7320d65
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />

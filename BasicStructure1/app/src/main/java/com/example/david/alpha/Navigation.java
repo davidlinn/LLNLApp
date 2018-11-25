@@ -18,11 +18,7 @@ public class Navigation extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-<<<<<<< HEAD
                 case R.id.navigation_scoring:
-=======
-                case R.id.navigation_home:
->>>>>>> c42ac8e2afb8aa95143661573eb321f6b7320d65
                     Intent homeIntent = new Intent(getApplicationContext(), ActiveHoursActivity.class);
                     startActivity(homeIntent);
                     mTextMessage.setText(R.string.title_home);
