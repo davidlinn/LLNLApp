@@ -64,7 +64,6 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
         sensorMan.registerListener(this, accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
-        sensorRegistered = true;
         checkAttached();
     }
 
@@ -75,6 +74,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private int SAMPLE_SIZE = GlobalParams.ACC_SAMPLE_SIZE;
     private double THRESHOLD = GlobalParams.ACC_THRESHOLD;
 
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -84,16 +84,16 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             double z = mGravity[2];
 
             mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float)Math.sqrt( x*x + y*y + z*z );
+            mAccelCurrent = (float)Math.sqrt(x * x + y * y + z * z);
             double delta = mAccelCurrent - mAccelLast;
-            mAccel = mAccel*0.9f + delta;
+            mAccel = mAccel * 0.9f + delta;
 
             if (hitCount <= SAMPLE_SIZE) {
                 hitCount++;
                 hitSum += Math.abs(mAccel);
             } else {
                 myPos = MapsActivity.myPos;
-                hitResult = hitSum/SAMPLE_SIZE;
+                hitResult = hitSum / SAMPLE_SIZE;
 
                 Log.d("Sensor", String.valueOf(hitResult));
                 if (hitResult > THRESHOLD) {
@@ -105,13 +105,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                     initiateRest();
                     walking = false;
                 }
-
-                Log.d("UserScore", Integer.toString(userScore));
-                hitCount = 0;
-                hitSum = 0;
-                hitResult = 0;
-
             }
+
+            Log.d("UserScore", Integer.toString(userScore));
+            hitCount = 0;
+            hitSum = 0;
+            hitResult = 0;
         }
     }
 
@@ -125,6 +124,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             String bluetoothDevice = bt.getName();
             int startingIndex = bluetoothDevice.indexOf("SGM");
             if (startingIndex != -1) {
+
                 sensorRegistered = true;
 
                 SharedPreferences.Editor preferencesEditor = userData.edit();
@@ -137,7 +137,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
 
     public static void initiateRest() {
-        if (!walking){
+        if (!walking) {
             elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
             if (elapsedRestTime == GlobalParams.ACTIVE_CUTOFF) {
                 active = false;
@@ -156,11 +156,11 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 startRestTime = SystemClock.elapsedRealtime();
 
                 SharedPreferences.Editor prefEditor = userData.edit();
-                prefEditor.putInt("USER_SCORE",userScore+(sensorRegistered?1:0)*(active?1:0));
+                prefEditor.putInt("USER_SCORE", userScore + (sensorRegistered ? 1 : 0) * (active ? 1 : 0));
                 prefEditor.apply();
 
                 userScore++;
-                Log.d("scoring","Point assigned");
+                Log.d("scoring", "Point assigned");
                 SharedPreferences.Editor preferencesEditor = userData.edit();
                 preferencesEditor.putInt(GlobalParams.SCORE_KEY, userScore);
                 preferencesEditor.apply();
@@ -170,9 +170,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             }
         } else {
             active = true;
-            Log.d("scoring","set Active");
+            Log.d("scoring", "set Active");
             startActiveTime = SystemClock.elapsedRealtime();
         }
     }
 
 }
+
