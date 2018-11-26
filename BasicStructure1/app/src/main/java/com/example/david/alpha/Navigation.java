@@ -22,7 +22,7 @@ public class Navigation extends AppCompatActivity {
                 case R.id.navigation_scoring:
                     Intent homeIntent = new Intent(getApplicationContext(), ActiveHoursActivity.class);
                     startActivity(homeIntent);
-                    mTextMessage.setText(R.string.title_home);
+                    //mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_puzzles:
                     mTextMessage.setText("Puzzles");

@@ -61,8 +61,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
         userTotalScore = userData.getInt(GlobalParams.TOTAL_SCORE_KEY,userTotalScore); //TODO: FIGURE OUT DEF VALUE
-        userActiveHoursScore = userData.getInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, 0);
-        userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,0);
+        userActiveHoursScore = userData.getInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
+        userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,userActiveHoursScore);
 
         sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -79,7 +79,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         totalScoreDisplay.setBackgroundColor(Color.RED);
         totalScoreDisplay.setText(totalScoreString);
 
-        String QRScoreString = Integer.toString(0); //TODO: SET UP QR SCORE
+        String QRScoreString = Integer.toString(userQRCodeScore); //TODO: SET UP QR SCORE
         TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
         activeDisplay.setBackgroundColor(Color.LTGRAY);
         activeDisplay.setText(QRScoreString);
