@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -84,7 +85,9 @@ public class QRActivity extends AppCompatActivity {
                 url += "Lat=" + MapsActivity.myPos.latitude + '&'; //TO DO: More accurate GPS Position
                 url += "Long=" + MapsActivity.myPos.longitude + '&';
             }
-            url += "SensorID=" + getSensorID();
+            url += "SensorID=" + getSensorID() + '&';
+            if (android.os.Build.VERSION.SDK_INT < 26)
+                url += "PhoneSerial=" + Build.SERIAL;
             url = ensureValidURL(url);
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {

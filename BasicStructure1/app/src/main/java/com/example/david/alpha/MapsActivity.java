@@ -70,8 +70,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(100); // ten-second update interval.
-        mLocationRequest.setFastestInterval(10); // 1s upper limit
+        mLocationRequest.setInterval(100); // tenth-second update interval.
+        mLocationRequest.setFastestInterval(10); // .01s upper limit
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -92,24 +92,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-   // @Override
-   // public void onPause() {
-   //     super.onPause();
-//
-//        //stop location updates when Activity is no longer active
-//        if (mFusedLocationClient != null) {
-//            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-//        }
-//    }
-    @Override
-    public void onPause() {
-        super.onPause();
+    //@Override
+    //public void onPause() {
+    //    super.onPause();
 
-        //stop location updates when Activity is no longer active
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
-    }
+    //    //stop location updates when Activity is no longer active
+    //    if (mFusedLocationClient != null) {
+    //        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    //    }
+    //}
 
     LocationCallback mLocationCallback = new LocationCallback() {
 

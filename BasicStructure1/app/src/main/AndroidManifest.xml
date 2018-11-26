@@ -43,8 +43,11 @@
 
         <activity android:name=".ActiveHoursActivity"
             android:label="Scoring">
+<<<<<<< HEAD
             android:label="Home">
 
+=======
+>>>>>>> 5ee500982dc8ba18cd775f2c7833d4c9eacd621a
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />
