@@ -13,8 +13,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
+import org.w3c.dom.Text;
 
 import java.util.Set;
 
@@ -31,6 +33,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static LatLng myPos;
     private static boolean walking;
     private static boolean sensorRegistered;
+    private static boolean atSpeed;
     private static String sensorID;
     private static int userScore;
     public static boolean active;
@@ -65,6 +68,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         sensorMan.registerListener(this, accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
         checkAttached();
+
+        String scoreDisplay = Integer.toString(userScore);
+        TextView tv = (TextView) findViewById(R.id.score_Display);
+        tv.setText(scoreDisplay);
     }
 
     private int hitCount = 0;
@@ -83,6 +90,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             double y = mGravity[1];
             double z = mGravity[2];
 
+            Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
+
             mAccelLast = mAccelCurrent;
             mAccelCurrent = (float)Math.sqrt(x * x + y * y + z * z);
             double delta = mAccelCurrent - mAccelLast;
@@ -91,7 +100,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             if (hitCount <= SAMPLE_SIZE) {
                 hitCount++;
                 hitSum += Math.abs(mAccel);
+                Log.d("Accelerometer: ", "hitcount <= sample size");
             } else {
+                Log.d("Accelerometer: ", "hitcount >j= sample size");
                 myPos = MapsActivity.myPos;
                 hitResult = hitSum / SAMPLE_SIZE;
 
@@ -116,7 +127,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
     //David Edit 11/21: Simplified logic and ensured sensors that don't start with
     //  but contain "SGM" are included
-    public static void checkAttached() {
+    public void checkAttached() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
@@ -135,8 +146,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         sensorRegistered = false;
     }
 
+    public void checkAtSpeed() {
+        if (mAccelCurrent >= GlobalParams.ACC_CUTOFF) {
+            atSpeed = false;
+        }
+        else {
+            atSpeed = true;
+        }
+    }
 
-    public static void initiateRest() {
+
+    public void initiateRest() {
         if (!walking) {
             elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
             if (elapsedRestTime == GlobalParams.ACTIVE_CUTOFF) {
@@ -149,14 +169,16 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         }
     }
 
-    public static void initiateActivity() {
+    public void initiateActivity() {
         if (walking) {
             elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
             if (elapsedActiveTime >= GlobalParams.POINT_TIME) {
                 startRestTime = SystemClock.elapsedRealtime();
 
                 SharedPreferences.Editor prefEditor = userData.edit();
-                prefEditor.putInt("USER_SCORE", userScore + (sensorRegistered ? 1 : 0) * (active ? 1 : 0));
+                checkAttached();
+                checkAtSpeed();
+                prefEditor.putInt("USER_SCORE", userScore + (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0) );
                 prefEditor.apply();
 
                 userScore++;
@@ -164,6 +186,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 SharedPreferences.Editor preferencesEditor = userData.edit();
                 preferencesEditor.putInt(GlobalParams.SCORE_KEY, userScore);
                 preferencesEditor.apply();
+
+                String scoreDisplay = Integer.toString(userScore);
+                TextView tv = (TextView) findViewById(R.id.score_Display);
+                tv.setText(scoreDisplay);
 
                 elapsedActiveTime = 0;
                 startActiveTime = SystemClock.elapsedRealtime();
