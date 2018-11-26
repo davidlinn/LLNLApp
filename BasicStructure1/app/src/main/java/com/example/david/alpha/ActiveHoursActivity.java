@@ -37,7 +37,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static boolean atSpeed;
     private static String sensorID;
     private static int userActiveHoursScore;
-    private static int userQRCodeScore;
+    public static int userQRCodeScore;
     private static int userTotalScore;
     public static boolean active = false;
 
@@ -203,6 +203,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
                 SharedPreferences.Editor prefEditor = userData.edit();
                 prefEditor.putInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
+                prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, userQRCodeScore);
                 prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, userTotalScore);
                 prefEditor.apply();
                 Log.d("scoring", "Point assigned");
@@ -229,4 +230,3 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     }
 
 }
-

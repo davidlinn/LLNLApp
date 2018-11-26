@@ -116,6 +116,10 @@ public class QRActivity extends AppCompatActivity {
                         }
                     });
             queue.add(jsonObjectRequest);
+            //TODO: CHECK FUNCTIONALITY
+            ActiveHoursActivity.userQRCodeScore += 15;
+            TextView QRScoreDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
+            QRScoreDisplay.setText(Integer.toString(ActiveHoursActivity.userQRCodeScore));
         }
         catch (Exception e) {
             throw new RuntimeException(e);

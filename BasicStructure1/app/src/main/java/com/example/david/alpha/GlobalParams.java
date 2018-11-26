@@ -8,7 +8,7 @@ public enum GlobalParams {;
 
     public static final int ACC_SAMPLE_SIZE = 50;
 
-    public static final double ACC_THRESHOLD = 2.5;
+    public static final double ACC_THRESHOLD = 1.25;
     public static final double ACC_CUTOFF = 20;
 
     public static final String ACTIVEHOURS_SCORE_KEY = "User_ActiveHoursScore";
