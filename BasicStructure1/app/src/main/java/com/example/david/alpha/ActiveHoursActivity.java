@@ -93,16 +93,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
 
             mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float)Math.sqrt(x * x + y * y + z * z);
+            mAccelCurrent = (float) Math.sqrt(x * x + y * y + z * z);
             double delta = mAccelCurrent - mAccelLast;
             mAccel = mAccel * 0.9f + delta;
 
             if (hitCount <= SAMPLE_SIZE) {
                 hitCount++;
+                Log.d("hitCount: ", Integer.toString(hitCount));
                 hitSum += Math.abs(mAccel);
                 Log.d("Accelerometer: ", "hitcount <= sample size");
             } else {
-                Log.d("Accelerometer: ", "hitcount >j= sample size");
+                Log.d("Accelerometer: ", "hitcount >= sample size");
                 myPos = MapsActivity.myPos;
                 hitResult = hitSum / SAMPLE_SIZE;
 
@@ -123,6 +124,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             hitSum = 0;
             hitResult = 0;
         }
+
     }
 
     //David Edit 11/21: Simplified logic and ensured sensors that don't start with
