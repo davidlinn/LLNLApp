@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -35,8 +36,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static boolean sensorRegistered;
     private static boolean atSpeed;
     private static String sensorID;
-    private static int userScore;
-    public static boolean active;
+    private static int userActiveHoursScore;
+    private static int userQRCodeScore;
+    private static int userTotalScore;
+    public static boolean active = false;
 
     private static long startRestTime;
     private static long elapsedRestTime;
@@ -57,7 +60,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
         userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
-        userScore = userData.getInt(GlobalParams.SCORE_KEY, 0);
+        userTotalScore = userData.getInt(GlobalParams.TOTAL_SCORE_KEY,userTotalScore); //TODO: FIGURE OUT DEF VALUE
+        userActiveHoursScore = userData.getInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, 0);
+        userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,0);
 
         sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -69,9 +74,20 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 SensorManager.SENSOR_DELAY_NORMAL);
         checkAttached();
 
-        String scoreDisplay = Integer.toString(userScore);
-        TextView tv = (TextView) findViewById(R.id.score_Display);
-        tv.setText(scoreDisplay);
+        String totalScoreString = Integer.toString(userTotalScore);
+        TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
+        totalScoreDisplay.setBackgroundColor(Color.RED);
+        totalScoreDisplay.setText(totalScoreString);
+
+        String QRScoreString = Integer.toString(0); //TODO: SET UP QR SCORE
+        TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
+        activeDisplay.setBackgroundColor(Color.LTGRAY);
+        activeDisplay.setText(QRScoreString);
+
+        String activeHoursScoreString = Integer.toString(userActiveHoursScore);
+        TextView QRDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
+        QRDisplay.setBackgroundColor(Color.LTGRAY);
+        QRDisplay.setText(activeHoursScoreString);
     }
 
     private int hitCount = 0;
@@ -90,7 +106,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             double y = mGravity[1];
             double z = mGravity[2];
 
-            Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
+            //Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
 
             mAccelLast = mAccelCurrent;
             mAccelCurrent = (float) Math.sqrt(x * x + y * y + z * z);
@@ -99,30 +115,27 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
             if (hitCount <= SAMPLE_SIZE) {
                 hitCount++;
-                Log.d("hitCount: ", Integer.toString(hitCount));
                 hitSum += Math.abs(mAccel);
-                Log.d("Accelerometer: ", "hitcount <= sample size");
             } else {
-                Log.d("Accelerometer: ", "hitcount >= sample size");
                 myPos = MapsActivity.myPos;
                 hitResult = hitSum / SAMPLE_SIZE;
 
                 Log.d("Sensor", String.valueOf(hitResult));
                 if (hitResult > THRESHOLD) {
-                    Log.d("Accelerometer: ", "Walking");
                     initiateActivity();
                     walking = true;
+                    Log.d("Accelerometer: ", "Walking");
                 } else {
-                    Log.d("Accelerometer: ", "Not Walking");
                     initiateRest();
                     walking = false;
+                    Log.d("Accelerometer: ", "Not Walking");
                 }
-            }
 
-            Log.d("UserScore", Integer.toString(userScore));
-            hitCount = 0;
-            hitSum = 0;
-            hitResult = 0;
+                Log.d("UserScore", Integer.toString(userTotalScore));
+                hitCount = 0;
+                hitSum = 0;
+                hitResult = 0;
+            }
         }
 
     }
@@ -137,20 +150,23 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             String bluetoothDevice = bt.getName();
             int startingIndex = bluetoothDevice.indexOf("SGM");
             if (startingIndex != -1) {
-
+                Log.d("Sensor","Sensor connected");
                 sensorRegistered = true;
 
                 SharedPreferences.Editor preferencesEditor = userData.edit();
                 preferencesEditor.putString(GlobalParams.SENSOR_KEY, bluetoothDevice);
                 preferencesEditor.apply();
+                return;
             }
         }
-        sensorRegistered = false;
+        Log.d("Sensor","Sensor disconnected");
+        sensorRegistered = true; // TODO: RETURN TO FALSE.
     }
 
     public void checkAtSpeed() {
         if (mAccelCurrent >= GlobalParams.ACC_CUTOFF) {
             atSpeed = false;
+            Log.d("speed","too fast");
         }
         else {
             atSpeed = true;
@@ -161,37 +177,44 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void initiateRest() {
         if (!walking) {
             elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
-            if (elapsedRestTime == GlobalParams.ACTIVE_CUTOFF) {
+            Log.d("rest time", Double.toString(elapsedRestTime));
+            if (elapsedRestTime >= GlobalParams.ACTIVE_CUTOFF) {
+                //userScore += GlobalParams.ACTIVE_CUTOFF/GlobalParams.MILLIS_TO_MINUTES; //TODO: FIX REST SCORE ISSUE
                 active = false;
+                TextView scoreDisp = findViewById(R.id.score_totalScoreDisplay);
+                scoreDisp.setBackgroundColor(Color.RED);
                 Log.d("scoring", "set inactive");
             }
         } else {
             startRestTime = SystemClock.elapsedRealtime();
-            elapsedRestTime = 0;
         }
     }
 
     public void initiateActivity() {
         if (walking) {
             elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
+            Log.d("active time", Double.toString(elapsedActiveTime));
             if (elapsedActiveTime >= GlobalParams.POINT_TIME) {
-                startRestTime = SystemClock.elapsedRealtime();
-
-                SharedPreferences.Editor prefEditor = userData.edit();
                 checkAttached();
                 checkAtSpeed();
-                prefEditor.putInt("USER_SCORE", userScore + (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0) );
+                int point = (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0);
+                userActiveHoursScore += point;
+                userTotalScore += point;
+
+                SharedPreferences.Editor prefEditor = userData.edit();
+                prefEditor.putInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
+                prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, userTotalScore);
                 prefEditor.apply();
-
-                userScore++;
                 Log.d("scoring", "Point assigned");
-                SharedPreferences.Editor preferencesEditor = userData.edit();
-                preferencesEditor.putInt(GlobalParams.SCORE_KEY, userScore);
-                preferencesEditor.apply();
 
-                String scoreDisplay = Integer.toString(userScore);
-                TextView tv = (TextView) findViewById(R.id.score_Display);
-                tv.setText(scoreDisplay);
+
+                String scoreDisplay = Integer.toString(userTotalScore);
+                TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
+                totalScoreDisplay.setText(scoreDisplay);
+
+                scoreDisplay = Integer.toString(userActiveHoursScore);
+                TextView activeHoursScoreDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
+                activeHoursScoreDisplay.setText(scoreDisplay);
 
                 elapsedActiveTime = 0;
                 startActiveTime = SystemClock.elapsedRealtime();
@@ -199,6 +222,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         } else {
             active = true;
             Log.d("scoring", "set Active");
+            TextView scoreDisp = findViewById(R.id.score_totalScoreDisplay);
+            scoreDisp.setBackgroundColor(Color.GREEN);
             startActiveTime = SystemClock.elapsedRealtime();
         }
     }

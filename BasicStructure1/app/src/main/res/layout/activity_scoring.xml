@@ -23,18 +23,81 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/score_Display"
-        android:layout_width="wrap_content"
+        android:id="@+id/score_totalScoreDisplay"
+        android:layout_width="200dp"
         android:layout_height="100dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="68dp"
         android:layout_marginEnd="8dp"
         android:text="TextView"
-        android:background="@color/colorAccent"
         android:textColor="@color/colorWhite"
+        android:textSize="48dp"
+        android:textAlignment="center"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/score_title" />
+
+    <TextView
+        android:id="@+id/score_totalScoreTitle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Total Score"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/score_totalScoreDisplay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/score_movementScoreTitle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="64dp"
+        android:text="Active Minutes"
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_totalScoreDisplay" />
+
+    <TextView
+        android:id="@+id/score_QRScoreTitle"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="32dp"
+        android:text="QR Code Points"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_totalScoreDisplay" />
+
+    <TextView
+        android:id="@+id/score_activeHoursDisplay"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_movementScoreTitle" />
+
+    <TextView
+        android:id="@+id/score_QRPointsDisplay"
+        android:layout_width="150dp"
+        android:layout_height="75dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/score_QRScoreTitle" />
 
 
 </android.support.constraint.ConstraintLayout>

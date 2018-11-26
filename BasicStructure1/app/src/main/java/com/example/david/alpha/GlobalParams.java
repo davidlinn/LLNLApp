@@ -4,12 +4,15 @@ public enum GlobalParams {;
 
     public static final long ACTIVE_CUTOFF = 10000; // The time after which the player state goes from active to inactive. Time in milliseconds.
     public static final long POINT_TIME = 10000; // The time in millis after which an active player gains a point.
+    public static final long MILLIS_TO_MINUTES = 1000; // Converts ACTIVE_CUTOFF from milliseconds to minutes.
 
     public static final int ACC_SAMPLE_SIZE = 50;
 
     public static final double ACC_THRESHOLD = 2.5;
     public static final double ACC_CUTOFF = 20;
 
-    public static final String SCORE_KEY = "User_Score";
+    public static final String ACTIVEHOURS_SCORE_KEY = "User_ActiveHoursScore";
+    public static final String QRCODE_SCORE_KEY = "User_QRCodeScore";
+    public static final String TOTAL_SCORE_KEY = "User_TotalScore";
     public static final String SENSOR_KEY = "Sensor_ID";
 }
