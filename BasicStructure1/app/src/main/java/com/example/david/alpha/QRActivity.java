@@ -117,8 +117,22 @@ public class QRActivity extends AppCompatActivity {
                     });
             queue.add(jsonObjectRequest);
             //TODO: CHECK FUNCTIONALITY
+            String resultType = qrResult.valueOf(0); //get first letter
+            int pointsToAdd = 0;
+            switch(resultType) {
+                case "T":
+                    pointsToAdd = 1;
+                    Log.d("QR type", "T");
+                case "D":
+                    pointsToAdd = 3;
+                    Log.d("QR type", "D");
+                case "P":
+                    pointsToAdd = 20;
+                    Log.d("QR type", "P");
+            }
             try {
-                ActiveHoursActivity.userQRCodeScore += 15;
+                ActiveHoursActivity.userQRCodeScore += pointsToAdd;
+                Log.d("QR Score", "added points");
                 TextView QRScoreDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
                 QRScoreDisplay.setText(Integer.toString(ActiveHoursActivity.userQRCodeScore));
             }
