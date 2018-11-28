@@ -18,5 +18,5 @@ public enum GlobalParams {;
     public static final String SENSOR_KEY = "Sensor_ID";
 
     public static final String REMOTE_UPDATE_INFOURL = "https://raw.githubusercontent.com/SnekCharmer/App-deploy/master/versionInfo.txt"; //TODO: FIGURE OUT DOWNLOAD NOTIFICATIONS.
-    public static final String REMOTE_UPDATE_HOSTURL = "https://github.com/SnekCharmer/App-deploy/blob/master/app-deploy.apk?raw=true"; 
+    public static final String REMOTE_UPDATE_HOSTURL = "https://github.com/SnekCharmer/App-deploy/blob/master/app-deploy.apk?raw=true";
 }

@@ -2,8 +2,11 @@ package com.example.david.alpha;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -15,6 +18,7 @@ import android.util.Log;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import org.w3c.dom.Text;
@@ -70,6 +74,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         mAccelCurrent = SensorManager.GRAVITY_EARTH;
         mAccelLast = SensorManager.GRAVITY_EARTH;
 
+        IntentFilter disconnectFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        IntentFilter connectFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED);
         sensorMan.registerListener(this, accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
         checkAttached();
@@ -142,7 +148,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
     //David Edit 11/21: Simplified logic and ensured sensors that don't start with
     //  but contain "SGM" are included
-    public void checkAttached() {
+    public void checkAttached(boolean attached) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
@@ -150,18 +156,40 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             String bluetoothDevice = bt.getName();
             int startingIndex = bluetoothDevice.indexOf("SGM");
             if (startingIndex != -1) {
-                Log.d("Sensor","Sensor connected");
-                sensorRegistered = true;
+                Log.d("Sensor","Sensor paired");
 
-                SharedPreferences.Editor preferencesEditor = userData.edit();
-                preferencesEditor.putString(GlobalParams.SENSOR_KEY, bluetoothDevice);
-                preferencesEditor.apply();
-                return;
+
             }
         }
-        Log.d("Sensor","Sensor disconnected");
-        sensorRegistered = true; // TODO: RETURN TO FALSE.
+
+
+        if (attached == true) {
+            sensorRegistered = true;
+            TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+            sensorReg.setText("Sensor Registered: true");
+        } else {
+            sensorRegistered = false;
+            TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+            sensorReg.setText("Sensor Registered: False");
+            sensorReg.setBackgroundColor(Color.RED);
+        }
     }
+
+
+    private final BroadcastReceiver BTReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                checkAttached(true);
+                Toast.makeText(getApplicationContext(), "BT Connected", Toast.LENGTH_SHORT).show();
+            }
+            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                checkAttached(false);
+                Toast.makeText(getApplicationContext(), "BT Disconnected", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
 
     public void checkAtSpeed() {
         if (mAccelCurrent >= GlobalParams.ACC_CUTOFF) {

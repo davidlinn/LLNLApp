@@ -54,6 +54,10 @@ public class RemoteUpdateService extends IntentService {
 
         //if (intentURI == staticURI) {
             if (nextCodeVersion > currentCodeVersion) {
+                Toast notification = Toast.makeText(this,"An app update is available. Tau App is updating...",Toast.LENGTH_SHORT);
+                notification.setMargin(50,50);
+                notification.show();
+
                 Intent updateIntent = new Intent(Intent.ACTION_VIEW, staticURI);
                 updateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 Log.d("Remote Updater","Starting Update");

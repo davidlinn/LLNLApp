@@ -41,7 +41,7 @@ public class Navigation extends AppCompatActivity {
                     startActivity(mapsIntent);
                     return true;
                 case R.id.navigation_leaderboard:
-                    mTextMessage.setText("In development");
+                    //mTextMessage.setText("In development");
                     return true;
             }
             return false;
