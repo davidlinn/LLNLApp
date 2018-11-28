@@ -7,6 +7,11 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.net.Uri;
+import android.widget.Toast;
+import android.util.Log;
+
+import java.net.URL;
 
 public class Navigation extends AppCompatActivity {
 
@@ -59,6 +64,22 @@ public class Navigation extends AppCompatActivity {
           //  Log.e(TAG, "LONG STARTUP TIME");
         //}
         //Log.d(TAG, String.format("Elapsed Time = %d ms", elapsedTime));
+
+
+        Log.d("Startup","Starting up navigation");
+        //TODO: CHECK REMOTE UPDATE FUNCTIONALITY
+
+        try {
+            Intent mServiceIntent = new Intent(this, RemoteUpdateService.class);
+            mServiceIntent.setData(Uri.parse(GlobalParams.REMOTE_UPDATE_HOSTURL));
+            startService(mServiceIntent);
+            Log.d("update","attempting update");
+        }
+        catch(Exception e) {
+            Toast.makeText(this,"Could not update", Toast.LENGTH_SHORT);
+            Log.d("update", "Update failed");
+        }
+
 
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);

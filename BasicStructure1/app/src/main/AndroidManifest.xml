@@ -23,6 +23,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        //TODO: ELIMINATE SERVICE REGISTRATION IF IT DOES NOT WORK
+        <service
+            android:name=".RemoteUpdateService"
+            android:exported="false"
+            />
+
         <activity
             android:name=".Navigation"
             android:label="@string/app_name">
