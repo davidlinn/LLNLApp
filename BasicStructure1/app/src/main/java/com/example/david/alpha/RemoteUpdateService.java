@@ -53,7 +53,6 @@ public class RemoteUpdateService extends IntentService {
         //Log.d("Remote Updater", "Checking Host URL");
 
         //if (intentURI == staticURI) {
-            Log.d("Remote Updater","Correct URL");
             if (nextCodeVersion > currentCodeVersion) {
                 Intent updateIntent = new Intent(Intent.ACTION_VIEW, staticURI);
                 Log.d("Remote Updater","Starting Update");
@@ -105,16 +104,16 @@ public class RemoteUpdateService extends IntentService {
         InputStream in = null;
         try {
             in = openHttpConnection();
-            Log.d("Remote Updater","HTTP Connection finished");
+            Log.d("downloadText","HTTP Connection finished");
         } catch (IOException e1) {
-            Log.d("Remote Updater", "HTTP Connection failed");
+            Log.d("downloadText", "HTTP Connection failed");
             return "0";
         }
 
         String str = "";
         if (in != null) {
             InputStreamReader isr = new InputStreamReader(in);
-            Log.d("Remote Updater","InputStreamReader instantiated");
+            Log.d("downloadText","InputStreamReader instantiated");
             int charRead;
             char[] inputBuffer = new char[BUFFER_SIZE];
             try {
@@ -125,14 +124,14 @@ public class RemoteUpdateService extends IntentService {
                     inputBuffer = new char[BUFFER_SIZE];
                 }
                 in.close();
-                Log.d("Remote Updater","input buffer string reader completed");
+                Log.d("downloadText","input buffer string reader completed");
             } catch (IOException e) {
-                Log.d("Remote Updater", "IOException");
+                Log.d("downloadText", "IOException");
                 return "0";
             }
         }
-        Log.d("Remote Updater","String returned");
-        Log.d("Remote Updater",str);
+        Log.d("downloadText","String returned");
+        Log.d("downloadText",str);
         return str;
     }
 
@@ -142,7 +141,7 @@ public class RemoteUpdateService extends IntentService {
         int response = -1;
 
         URL url = new URL(getVersionFile());
-        Log.d("Remote Updater", "Info URL retrieved - " + getVersionFile());
+        Log.d("openHttpConn", "Info URL retrieved - " + getVersionFile());
         URLConnection conn = url.openConnection();
 
         if (!(conn instanceof HttpURLConnection))
@@ -150,26 +149,26 @@ public class RemoteUpdateService extends IntentService {
 
         try {
             HttpURLConnection httpConn = (HttpURLConnection) conn;
-            Log.d("Remote Updater","URL connection generated");
+            Log.d("openHttpConn","URL connection generated");
             httpConn.setAllowUserInteraction(false);
             httpConn.setInstanceFollowRedirects(true);
             httpConn.setRequestMethod("GET");
-            Log.d("Remote Updater", "GET request initiated");
+            Log.d("openHttpConn", "GET request initiated");
             httpConn.connect();
-            Log.d("Remote Updater","URL connection successfully opened");
+            Log.d("openHttpConn","URL connection successfully opened");
 
             response = httpConn.getResponseCode();
             Log.d("Remote Updater", "Response code - " + Integer.toString(response));
             if (response == HttpURLConnection.HTTP_OK) {
-                Log.d("Remote Updater","Http connection okay");
+                Log.d("openHttpConn","Http connection okay");
                 in = httpConn.getInputStream();
-                Log.d("Remote Updater","Http input stream okay");
+                Log.d("openHttpConn","Http input stream okay");
             }
         } catch (Exception ex) {
-            Log.d("Remote Updater", "Could not open HTTPS");
+            Log.d("openHttpConn", "Could not open HTTPS");
             throw new IOException("Error connecting");
         }
-        Log.d("Remote Updater","input stream returned");
+        Log.d("openHttpConn","input stream returned");
         return in;
     }
 

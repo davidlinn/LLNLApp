@@ -17,6 +17,6 @@ public enum GlobalParams {;
     public static final String TOTAL_SCORE_KEY = "User_TotalScore";
     public static final String SENSOR_KEY = "Sensor_ID";
 
-    public static final String REMOTE_UPDATE_INFOURL = "https://drive.google.com/drive/folders/1CQHFqTuFobi68fkUPtf4QUKtVXg2b92H?usp=sharing/versionInfo.txt"; //TODO: SET UP .TXT FILE INCLUDING VERSION NUM FOR COMPARISON.
-    public static final String REMOTE_UPDATE_HOSTURL = "https://drive.google.com/open?id=1qC36LX20MLgcu4Dd801YsdApRVtEp16H/app-deploy.apk"; //TODO: SET UP APPROPRIATE HOSTING SITE.
+    public static final String REMOTE_UPDATE_INFOURL = "https://raw.githubusercontent.com/SnekCharmer/App-deploy/master/versionInfo.txt"; //TODO: SET UP .TXT FILE INCLUDING VERSION NUM FOR COMPARISON.
+    public static final String REMOTE_UPDATE_HOSTURL = "https://github.com/SnekCharmer/App-deploy/blob/master/app-deploy.apk"; //TODO: SET UP APPROPRIATE HOSTING SITE.
 }
