@@ -55,6 +55,7 @@ public class RemoteUpdateService extends IntentService {
         //if (intentURI == staticURI) {
             if (nextCodeVersion > currentCodeVersion) {
                 Intent updateIntent = new Intent(Intent.ACTION_VIEW, staticURI);
+                updateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 Log.d("Remote Updater","Starting Update");
                 startActivity(updateIntent);
                 Log.d("Remote Updater", "Update started");

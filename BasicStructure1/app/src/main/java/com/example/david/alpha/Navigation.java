@@ -30,7 +30,7 @@ public class Navigation extends AppCompatActivity {
                     //mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_puzzles:
-                    mTextMessage.setText("Puzzles");
+                    //mTextMessage.setText("Puzzles");
                     return true;
                 case R.id.navigation_qrScanner:
                     Intent qrIntent = new Intent(getApplicationContext(), QRActivity.class);
