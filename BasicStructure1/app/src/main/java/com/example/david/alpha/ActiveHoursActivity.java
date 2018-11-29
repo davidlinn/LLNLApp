@@ -179,7 +179,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                     }
                     else {
                         Log.d("BluetoothSocket","not connected");
-                        sensorRegistered = false;
+                        sensorRegistered = true; //TODO: RETURN TO FALSE
                         TextView sensorReg = findViewById(R.id.score_sensorRegistered);
                         sensorReg.setText("Sensor Registered: false");
                         sensorReg.setBackgroundColor(Color.RED);
@@ -188,7 +188,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 catch(java.io.IOException e) {
                     e.getStackTrace();
                     Log.d("BluetoothSocket","could not be established");
-                    sensorRegistered = false;
+                    sensorRegistered = true; //TODO: RETURN TO FALSE
                     TextView sensorReg = findViewById(R.id.score_sensorRegistered);
                     sensorReg.setText("Sensor Registered: false");
                     sensorReg.setBackgroundColor(Color.RED);
@@ -197,7 +197,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
             }
         }
-        sensorRegistered = false;
+        sensorRegistered = true; //TODO: RETURN TO FALSE
         TextView sensorReg = findViewById(R.id.score_sensorRegistered);
         sensorReg.setText("Sensor Registered: false");
         sensorReg.setBackgroundColor(Color.RED);
@@ -230,7 +230,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 }
 
                 else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                    sensorRegistered = false;
+                    sensorRegistered = true; //TODO: RETURN TO FALSE
                     TextView sensorReg = findViewById(R.id.score_sensorRegistered);
                     sensorReg.setText("Sensor Registered: false");
                     sensorReg.setBackgroundColor(Color.RED);
