@@ -14,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.os.Bundle;
@@ -21,9 +22,20 @@ import android.os.SystemClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Set;
 
 public class ActiveHoursActivity extends AppCompatActivity implements SensorEventListener {
@@ -97,6 +109,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         TextView QRDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
         QRDisplay.setBackgroundColor(Color.LTGRAY);
         QRDisplay.setText(activeHoursScoreString);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        pushPointsToServer();
     }
 
     private int hitCount = 0;
@@ -306,6 +324,65 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             scoreDisp.setBackgroundColor(Color.GREEN);
             startActiveTime = SystemClock.elapsedRealtime();
         }
+    }
+
+    //Attempts to push current userActiveHoursScore and userQRCodeScore to UserDatabase Google Sheet
+    //Displays response
+    public void pushPointsToServer() {
+        //Populate the server info view depending on request result
+        final TextView InfoDisplay = (TextView) findViewById(R.id.score_serverInfo);
+        //Create queue that accepts requests
+        RequestQueue queue = Volley.newRequestQueue(this);
+        //Build URL and query string from JSON object
+        String url = getApplicationContext().getString(R.string.user_database_url);
+        url += '?';
+        url += "Sheet=" + "Event1" + '&';
+        url += "RequestType=DataPush&";
+        url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
+        url += "ActiveMinPoints=" + userActiveHoursScore + '&';
+        url += "QRCodePoints=" + userQRCodeScore;
+        url = QRActivity.ensureValidURL(url);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String str = response.toString();
+                        Log.e("QR JSON response",str);
+                        boolean result = false;
+                        try {
+                            result = response.getString("result").equals("success");
+                        }
+                        catch (JSONException exception) {
+                            InfoDisplay.setText("JSON String returned by server has no field 'result'.");
+                        }
+                        if (result) {
+                            try {
+                                InfoDisplay.setText("Successfully updated server, with our manual offset you have "
+                                        + response.getInt("remotePoints") + " points on our servers.");
+                            }
+                            catch (JSONException e) {
+                                InfoDisplay.setText("This should never appear: Email us if you see this USERDATABASEERROR");
+                            }
+                        }
+                        else {
+                            try {
+                                InfoDisplay.setText("Connected to server but failed to push local score: " +
+                                        response.getString("error"));
+                            }
+                            catch (JSONException e) {
+                                InfoDisplay.setText("This should never appear: Email us if you see this USERDATABASEERROR");
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        InfoDisplay.setText("Error in HTTP Request");
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
     }
 
 }

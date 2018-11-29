@@ -120,5 +120,15 @@
         app:layout_constraintStart_toStartOf="@+id/score_totalScoreDisplay"
         app:layout_constraintTop_toBottomOf="@+id/score_totalScoreDisplay" />
 
+    <TextView
+        android:id="@+id/score_serverInfo"
+        android:layout_width="360dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="32dp"
+        android:text="Pushing local score to server..."
+        app:layout_constraintLeft_toLeftOf="@id/score_title"
+        app:layout_constraintTop_toBottomOf="@id/score_QRPointsDisplay" />
+
 
 </android.support.constraint.ConstraintLayout>

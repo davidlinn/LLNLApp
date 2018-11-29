@@ -14,4 +14,5 @@
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="ground_truth_script_url">https://script.google.com/macros/s/AKfycbwao-wZcP1uFGIHPcuFy5UcWg2xA6uXnEOadYml--lyMJjHyfeB/exec</string>
+    <string name="user_database_url">https://script.google.com/macros/s/AKfycbzASlD8AkqxaQnji_5BbmlVXF1dsVyV_UhG1HBWO2IyH2SaRzU_/exec</string>
 </resources>

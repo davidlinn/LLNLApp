@@ -123,12 +123,15 @@ public class QRActivity extends AppCompatActivity {
                 case "T":
                     pointsToAdd = 1;
                     Log.d("QR type", "T");
+                    break;
                 case "D":
                     pointsToAdd = 3;
                     Log.d("QR type", "D");
+                    break;
                 case "P":
                     pointsToAdd = 20;
                     Log.d("QR type", "P");
+                    break;
             }
             try {
                 ActiveHoursActivity.userQRCodeScore += pointsToAdd;
