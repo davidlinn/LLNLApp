@@ -2,6 +2,7 @@ package com.example.david.alpha;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -76,8 +77,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
         IntentFilter disconnectFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         IntentFilter connectFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED);
-        sensorMan.registerListener(this, accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL);
+        this.registerReceiver(BTReceiver,disconnectFilter);
+        this.registerReceiver(BTReceiver,connectFilter);
+
+        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         checkAttached();
 
         String totalScoreString = Integer.toString(userTotalScore);
@@ -113,7 +116,6 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             double z = mGravity[2];
 
             //Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
-
             mAccelLast = mAccelCurrent;
             mAccelCurrent = (float) Math.sqrt(x * x + y * y + z * z);
             double delta = mAccelCurrent - mAccelLast;
@@ -137,18 +139,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                     Log.d("Accelerometer: ", "Not Walking");
                 }
 
-                Log.d("UserScore", Integer.toString(userTotalScore));
+                //Log.d("UserScore", Integer.toString(userTotalScore));
                 hitCount = 0;
                 hitSum = 0;
                 hitResult = 0;
             }
         }
-
     }
 
     //David Edit 11/21: Simplified logic and ensured sensors that don't start with
     //  but contain "SGM" are included
-    public void checkAttached(boolean attached) {
+    public void checkAttached() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
@@ -157,37 +158,87 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             int startingIndex = bluetoothDevice.indexOf("SGM");
             if (startingIndex != -1) {
                 Log.d("Sensor","Sensor paired");
+                BluetoothSocket tmp;
+
+                sensorID = bluetoothDevice;
+                SharedPreferences.Editor prefEditor = userData.edit();
+                prefEditor.putString(GlobalParams.SENSOR_KEY, sensorID);
+                prefEditor.apply();
+
+                try {
+                    tmp = bt.createRfcommSocketToServiceRecord(bt.getUuids()[0].getUuid());
+                    tmp.connect();
+                    Log.d("BluetoothSocket","Established");
+                    Log.d("bluetoothdevice",bluetoothDevice);
+                    if (tmp.isConnected()) {
+                        Log.d("BluetoothSocket","connected");
+                        sensorRegistered = true;
+                        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+                        sensorReg.setText("Sensor Registered: true");
+                        sensorReg.setBackgroundColor(Color.LTGRAY);
+                    }
+                    else {
+                        Log.d("BluetoothSocket","not connected");
+                        sensorRegistered = false;
+                        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+                        sensorReg.setText("Sensor Registered: false");
+                        sensorReg.setBackgroundColor(Color.RED);
+                    }
+                }
+                catch(java.io.IOException e) {
+                    e.getStackTrace();
+                    Log.d("BluetoothSocket","could not be established");
+                    sensorRegistered = false;
+                    TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+                    sensorReg.setText("Sensor Registered: false");
+                    sensorReg.setBackgroundColor(Color.RED);
+                }
 
 
             }
         }
+        sensorRegistered = false;
+        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+        sensorReg.setText("Sensor Registered: false");
+        sensorReg.setBackgroundColor(Color.RED);
 
-
-        if (attached == true) {
-            sensorRegistered = true;
-            TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-            sensorReg.setText("Sensor Registered: true");
-        } else {
-            sensorRegistered = false;
-            TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-            sensorReg.setText("Sensor Registered: False");
-            sensorReg.setBackgroundColor(Color.RED);
-        }
     }
-
 
     private final BroadcastReceiver BTReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                checkAttached(true);
-                Toast.makeText(getApplicationContext(), "BT Connected", Toast.LENGTH_SHORT).show();
+            Log.d("Bluetooth", "connection received");
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+            String bluetoothDevice = device.getName();
+            int startingIndex = bluetoothDevice.indexOf("SGM");
+
+            if (startingIndex != -1) {
+                Log.d("Sensor","Sensor paired");
+                sensorID = bluetoothDevice;
+                SharedPreferences.Editor prefEditor = userData.edit();
+                prefEditor.putString(GlobalParams.SENSOR_KEY, sensorID);
+                prefEditor.apply();
+
+                if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                    sensorRegistered = true;
+                    TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+                    sensorReg.setText("Sensor Registered: true");
+                    sensorReg.setBackgroundColor(Color.LTGRAY);
+                    Toast.makeText(getApplicationContext(), "BT Connected", Toast.LENGTH_SHORT).show();
+                }
+
+                else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                    sensorRegistered = false;
+                    TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+                    sensorReg.setText("Sensor Registered: false");
+                    sensorReg.setBackgroundColor(Color.RED);
+                    Toast.makeText(getApplicationContext(), "BT Disconnected", Toast.LENGTH_SHORT).show();
+                }
             }
-            else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                checkAttached(false);
-                Toast.makeText(getApplicationContext(), "BT Disconnected", Toast.LENGTH_SHORT).show();
-            }
+
+
         }
     };
 
@@ -205,7 +256,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void initiateRest() {
         if (!walking) {
             elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
-            Log.d("rest time", Double.toString(elapsedRestTime));
+            //Log.d("rest time", Double.toString(elapsedRestTime));
             if (elapsedRestTime >= GlobalParams.ACTIVE_CUTOFF) {
                 //userScore += GlobalParams.ACTIVE_CUTOFF/GlobalParams.MILLIS_TO_MINUTES; //TODO: FIX REST SCORE ISSUE
                 active = false;
@@ -223,7 +274,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
             Log.d("active time", Double.toString(elapsedActiveTime));
             if (elapsedActiveTime >= GlobalParams.POINT_TIME) {
-                checkAttached();
+                //checkAttached();
                 checkAtSpeed();
                 int point = (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0);
                 userActiveHoursScore += point;
@@ -250,7 +301,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             }
         } else {
             active = true;
-            Log.d("scoring", "set Active");
+            //Log.d("scoring", "set Active");
             TextView scoreDisp = findViewById(R.id.score_totalScoreDisplay);
             scoreDisp.setBackgroundColor(Color.GREEN);
             startActiveTime = SystemClock.elapsedRealtime();
