@@ -274,6 +274,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void initiateRest() {
         if (!walking) {
             elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
+            elapsedActiveTime = SystemClock.elapsedRealtime() - startRestTime;
             //Log.d("rest time", Double.toString(elapsedRestTime));
             if (elapsedRestTime >= GlobalParams.ACTIVE_CUTOFF) {
                 //userScore += GlobalParams.ACTIVE_CUTOFF/GlobalParams.MILLIS_TO_MINUTES; //TODO: FIX REST SCORE ISSUE
