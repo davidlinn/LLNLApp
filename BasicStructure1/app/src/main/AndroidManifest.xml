@@ -2,8 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.david.alpha"
     android:versionCode="2"
-    android:versionName="1.0.2"
-    >
+    android:versionName="1.0.2">
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -13,8 +12,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -23,12 +22,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         //TODO: ELIMINATE SERVICE REGISTRATION IF IT DOES NOT WORK
         <service
             android:name=".RemoteUpdateService"
-            android:exported="false"
-            />
+            android:exported="false" />
 
         <activity
             android:name=".Navigation"
@@ -51,14 +48,13 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".ActiveHoursActivity"
+        <activity
+            android:name=".ActiveHoursActivity"
             android:label="Scoring">
-
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />
         </activity>
-
         <activity
             android:name=".MapsActivity"
             android:label="Maps">
@@ -66,7 +62,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />
         </activity>
-
         <activity
             android:name=".QRActivity"
             android:label="QR">
@@ -74,11 +69,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />
         </activity>
-
         <activity
             android:name=".barcode.BarcodeCaptureActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"/>
-
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity android:name=".LeaderboardActivity"></activity>
     </application>
 
 </manifest>
