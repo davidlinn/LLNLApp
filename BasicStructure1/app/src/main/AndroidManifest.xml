@@ -72,7 +72,12 @@
         <activity
             android:name=".barcode.BarcodeCaptureActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity android:name=".LeaderboardActivity"></activity>
+        <activity android:name=".LeaderboardActivity"
+            android:label="Leaderboard">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.david.alpha.Navigation" />
+        </activity>
     </application>
 
 </manifest>

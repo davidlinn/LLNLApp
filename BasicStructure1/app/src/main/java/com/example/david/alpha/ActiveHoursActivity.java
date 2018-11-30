@@ -114,6 +114,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     @Override
     public void onResume() {
         super.onResume();
+        TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
+        String QRScoreString = Integer.toString(userQRCodeScore);
+        activeDisplay.setText(QRScoreString);
         pushPointsToServer();
     }
 

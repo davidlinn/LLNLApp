@@ -117,31 +117,30 @@ public class QRActivity extends AppCompatActivity {
                     });
             queue.add(jsonObjectRequest);
             //TODO: CHECK FUNCTIONALITY
-            String resultType = qrResult.valueOf(0); //get first letter
+            char resultType = qrResult.charAt(0); //get first letter
             int pointsToAdd = 0;
             switch(resultType) {
-                case "T":
+                case 'T':
                     pointsToAdd = 1;
                     Log.d("QR type", "T");
                     break;
-                case "D":
+                case 'D':
                     pointsToAdd = 3;
                     Log.d("QR type", "D");
                     break;
-                case "P":
+                case 'P':
                     pointsToAdd = 20;
                     Log.d("QR type", "P");
+                    break;
+                default:
                     break;
             }
             try {
                 ActiveHoursActivity.userQRCodeScore += pointsToAdd;
                 Log.d("QR Score", "added points");
-                TextView QRScoreDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
-                QRScoreDisplay.setText(Integer.toString(ActiveHoursActivity.userQRCodeScore));
             }
             catch (Exception exception) {
                 mResultTextView.setText("Couldn't add QR points");
-                throw new RuntimeException(exception);
             }
         }
         catch (Exception e) {
