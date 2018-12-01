@@ -3,6 +3,7 @@ package com.example.david.alpha;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
@@ -116,7 +117,6 @@ public class QRActivity extends AppCompatActivity {
                         }
                     });
             queue.add(jsonObjectRequest);
-            //TODO: CHECK FUNCTIONALITY
             char resultType = qrResult.charAt(0); //get first letter
             int pointsToAdd = 0;
             switch(resultType) {
@@ -137,7 +137,12 @@ public class QRActivity extends AppCompatActivity {
             }
             try {
                 ActiveHoursActivity.userQRCodeScore += pointsToAdd;
-                Log.d("QR Score", "added points");
+                ActiveHoursActivity.userTotalScore += pointsToAdd;
+                SharedPreferences.Editor prefEditor = ActiveHoursActivity.userData.edit();
+                prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, ActiveHoursActivity.userQRCodeScore);
+                prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, ActiveHoursActivity.userTotalScore);
+                prefEditor.apply();
+                Log.d("QR Score", "added " + pointsToAdd + " points");
             }
             catch (Exception exception) {
                 mResultTextView.setText("Couldn't add QR points");

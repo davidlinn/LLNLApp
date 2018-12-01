@@ -55,7 +55,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static String sensorID;
     private static int userActiveHoursScore;
     public static int userQRCodeScore;
-    private static int userTotalScore;
+    public static int userTotalScore;
     public static boolean active = false;
 
     private static long startRestTime;
@@ -63,8 +63,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static long startActiveTime;
     private static long elapsedActiveTime;
 
-    private static SharedPreferences userData;
-    private String sharedPrefFile = "com.example.david.alpha";
+    public static SharedPreferences userData;
+    public String sharedPrefFile = "com.example.david.alpha";
 
     public void onAccuracyChanged(Sensor sensor, int num) {
         Log.d("accelerometer ", "accuracy changed");
@@ -100,7 +100,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         totalScoreDisplay.setBackgroundColor(Color.RED);
         totalScoreDisplay.setText(totalScoreString);
 
-        String QRScoreString = Integer.toString(userQRCodeScore); //TODO: SET UP QR SCORE
+        String QRScoreString = Integer.toString(userQRCodeScore);
         TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
         activeDisplay.setBackgroundColor(Color.LTGRAY);
         activeDisplay.setText(QRScoreString);
@@ -116,6 +116,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         super.onResume();
         TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
         String QRScoreString = Integer.toString(userQRCodeScore);
+        Log.d("QRCodeScore",QRScoreString);
         activeDisplay.setText(QRScoreString);
         pushPointsToServer();
     }
@@ -218,10 +219,13 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
             }
         }
-        sensorRegistered = true; //TODO: RETURN TO FALSE
         TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-        sensorReg.setText("Sensor Registered: false");
-        sensorReg.setBackgroundColor(Color.RED);
+        sensorReg.setText("Sensor Registered: true");
+        sensorReg.setBackgroundColor(Color.LTGRAY);
+        sensorRegistered = true; //TODO: RETURN TO FALSE
+        //TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+        //sensorReg.setText("Sensor Registered: false");
+        //sensorReg.setBackgroundColor(Color.RED);
 
     }
 
@@ -258,7 +262,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                     Toast.makeText(getApplicationContext(), "BT Disconnected", Toast.LENGTH_SHORT).show();
                 }
             }
-
+            TextView sensorReg = findViewById(R.id.score_sensorRegistered); //TODO: RETURN TO FALSE
+            sensorReg.setText("Sensor Registered: true");
+            sensorReg.setBackgroundColor(Color.LTGRAY);
 
         }
     };
