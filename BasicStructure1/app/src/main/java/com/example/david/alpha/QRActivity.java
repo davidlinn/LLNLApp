@@ -121,15 +121,15 @@ public class QRActivity extends AppCompatActivity {
             int pointsToAdd = 0;
             switch(resultType) {
                 case 'T':
-                    pointsToAdd = 1;
+                    pointsToAdd = 4;
                     Log.d("QR type", "T");
                     break;
                 case 'D':
-                    pointsToAdd = 3;
+                    pointsToAdd = 12;
                     Log.d("QR type", "D");
                     break;
                 case 'P':
-                    pointsToAdd = 20;
+                    pointsToAdd = 60;
                     Log.d("QR type", "P");
                     break;
                 default:
