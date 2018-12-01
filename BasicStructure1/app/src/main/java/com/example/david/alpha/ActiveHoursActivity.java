@@ -274,8 +274,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void initiateRest() {
         if (!walking) {
             elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
-            elapsedActiveTime = SystemClock.elapsedRealtime() - startRestTime;
-            //Log.d("rest time", Double.toString(elapsedRestTime));
+            elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
+            assignPoint();
+            Log.d("active time", Double.toString(elapsedActiveTime));
             if (elapsedRestTime >= GlobalParams.ACTIVE_CUTOFF) {
                 //userScore += GlobalParams.ACTIVE_CUTOFF/GlobalParams.MILLIS_TO_MINUTES; //TODO: FIX REST SCORE ISSUE
                 active = false;
@@ -292,37 +293,41 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         if (walking) {
             elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
             Log.d("active time", Double.toString(elapsedActiveTime));
-            if (elapsedActiveTime >= GlobalParams.POINT_TIME) {
-                //checkAttached();
-                checkAtSpeed();
-                int point = (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0);
-                userActiveHoursScore += point;
-                userTotalScore += point;
-
-                SharedPreferences.Editor prefEditor = userData.edit();
-                prefEditor.putInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
-                prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, userQRCodeScore);
-                prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, userTotalScore);
-                prefEditor.apply();
-                Log.d("scoring", "Point assigned");
-
-
-                String scoreDisplay = Integer.toString(userTotalScore);
-                TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
-                totalScoreDisplay.setText(scoreDisplay);
-
-                scoreDisplay = Integer.toString(userActiveHoursScore);
-                TextView activeHoursScoreDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
-                activeHoursScoreDisplay.setText(scoreDisplay);
-
-                elapsedActiveTime = 0;
-                startActiveTime = SystemClock.elapsedRealtime();
-            }
+            assignPoint();
         } else {
             active = true;
             //Log.d("scoring", "set Active");
             TextView scoreDisp = findViewById(R.id.score_totalScoreDisplay);
             scoreDisp.setBackgroundColor(Color.GREEN);
+            startActiveTime = SystemClock.elapsedRealtime();
+        }
+    }
+
+    public void assignPoint() {
+        if (elapsedActiveTime >= GlobalParams.POINT_TIME) {
+            //checkAttached();
+            checkAtSpeed();
+            int point = (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0);
+            userActiveHoursScore += point;
+            userTotalScore += point;
+
+            SharedPreferences.Editor prefEditor = userData.edit();
+            prefEditor.putInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
+            prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, userQRCodeScore);
+            prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, userTotalScore);
+            prefEditor.apply();
+            Log.d("scoring", "Point assigned");
+
+
+            String scoreDisplay = Integer.toString(userTotalScore);
+            TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
+            totalScoreDisplay.setText(scoreDisplay);
+
+            scoreDisplay = Integer.toString(userActiveHoursScore);
+            TextView activeHoursScoreDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
+            activeHoursScoreDisplay.setText(scoreDisplay);
+
+            elapsedActiveTime = 0;
             startActiveTime = SystemClock.elapsedRealtime();
         }
     }
