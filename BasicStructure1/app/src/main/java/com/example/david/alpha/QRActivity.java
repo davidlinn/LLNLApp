@@ -3,6 +3,7 @@ package com.example.david.alpha;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
@@ -116,32 +117,35 @@ public class QRActivity extends AppCompatActivity {
                         }
                     });
             queue.add(jsonObjectRequest);
-            //TODO: CHECK FUNCTIONALITY
-            String resultType = qrResult.valueOf(0); //get first letter
+            char resultType = qrResult.charAt(0); //get first letter
             int pointsToAdd = 0;
             switch(resultType) {
-                case "T":
-                    pointsToAdd = 1;
+                case 'T':
+                    pointsToAdd = 4;
                     Log.d("QR type", "T");
                     break;
-                case "D":
-                    pointsToAdd = 3;
+                case 'D':
+                    pointsToAdd = 12;
                     Log.d("QR type", "D");
                     break;
-                case "P":
-                    pointsToAdd = 20;
+                case 'P':
+                    pointsToAdd = 60;
                     Log.d("QR type", "P");
+                    break;
+                default:
                     break;
             }
             try {
                 ActiveHoursActivity.userQRCodeScore += pointsToAdd;
-                Log.d("QR Score", "added points");
-                TextView QRScoreDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
-                QRScoreDisplay.setText(Integer.toString(ActiveHoursActivity.userQRCodeScore));
+                ActiveHoursActivity.userTotalScore += pointsToAdd;
+                SharedPreferences.Editor prefEditor = ActiveHoursActivity.userData.edit();
+                prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, ActiveHoursActivity.userQRCodeScore);
+                prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, ActiveHoursActivity.userTotalScore);
+                prefEditor.apply();
+                Log.d("QR Score", "added " + pointsToAdd + " points");
             }
             catch (Exception exception) {
                 mResultTextView.setText("Couldn't add QR points");
-                throw new RuntimeException(exception);
             }
         }
         catch (Exception e) {

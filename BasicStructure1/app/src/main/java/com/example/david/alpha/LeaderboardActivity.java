@@ -12,6 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +27,10 @@ public class LeaderboardActivity extends AppCompatActivity {
 
     public void leaderboardRequest() {
         //Populate the server info view depending on request result
-        final TextView InfoDisplay = (TextView) findViewById(R.id.leaderboardView);
+        final TextView[] name = {(TextView) findViewById(R.id.name0),(TextView) findViewById(R.id.name1),
+                (TextView) findViewById(R.id.name2),(TextView) findViewById(R.id.name3),(TextView) findViewById(R.id.name4)};
+        final TextView[] score = {(TextView) findViewById(R.id.score0),(TextView) findViewById(R.id.score1),
+                (TextView) findViewById(R.id.score2),(TextView) findViewById(R.id.score3),(TextView) findViewById(R.id.score4)};
         //Create queue that accepts requests
         RequestQueue queue = Volley.newRequestQueue(this);
         //Build URL and query string from JSON object
@@ -46,24 +50,28 @@ public class LeaderboardActivity extends AppCompatActivity {
                             result = response.getString("result").equals("success");
                         }
                         catch (JSONException exception) {
-                            InfoDisplay.setText("JSON String returned by server has no field 'result'.");
+                            name[0].setText("JSON String returned by server has no field 'result'.");
                         }
                         if (result) {
                             try {
-                                InfoDisplay.setText(response.getJSONArray("leaderboardNames").toString()+
-                                        response.getJSONArray("leaderboardScores").toString());
+                                JSONArray names = response.getJSONArray("leaderboardNames");
+                                for (int i = 0; i < 5; i++)
+                                    name[i].setText(names.getJSONArray(i).getString(0));
+                                JSONArray scores = response.getJSONArray("leaderboardScores");
+                                for (int i = 0; i < 5; i++)
+                                    score[i].setText(scores.getJSONArray(i).getString(0));
                             }
                             catch (JSONException e) {
-                                InfoDisplay.setText("This should never appear: Email us if you see this USERDATABASEERROR");
+                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR");
                             }
                         }
                         else {
                             try {
-                                InfoDisplay.setText("Connected to server but failed to push local score: " +
+                                name[0].setText("Connected to server but failed to push local score: " +
                                         response.getString("error"));
                             }
                             catch (JSONException e) {
-                                InfoDisplay.setText("This should never appear: Email us if you see this USERDATABASEERROR");
+                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR");
                             }
                         }
                     }
@@ -71,7 +79,7 @@ public class LeaderboardActivity extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        InfoDisplay.setText("Error in HTTP Request");
+                        name[0].setText("Error in HTTP Request");
                     }
                 });
 
