@@ -38,6 +38,27 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Set;
 
+/*
+    Active Hours Activity:
+    Continuously determine whether user is earning active detector minutes
+    Keep track of points
+    Pushes points to UserDatabase Google Sheet each time activity is opened
+    Details of active hours algorithm:
+        Uses SensorManager class to listen to updates from a sensor (calls onSensorChanged() at each
+            update)
+        In onSensorChanged(): Accumulates difference in magnitude of accelerometer readings until
+            we've gathered SAMPLE_SIZE readings, at which point we find the average difference in
+            accelerometer magnitude over the sampling period and determine if greater than threshold.
+            Implementation based off [link]
+        Checks whether a sensor is currently connected to the phone with BTReciever class (check is
+            currently disabled by setting outputs of all sensor checks to true)
+    2nd semester to-do:
+        Fine-tune active hours algorithm, potentially employ machine learning methods discussed in
+            ___ article at [link]
+        Secure score- ensure user is unable to edit locally or find a way to intercept push to Google
+            Sheets
+    Josh Morgan, David Linn - jmorgan@hmc.edu, dlinn@hmc.edu - 12/7/18
+ */
 public class ActiveHoursActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorMan;

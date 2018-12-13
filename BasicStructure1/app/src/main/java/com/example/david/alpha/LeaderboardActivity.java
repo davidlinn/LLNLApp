@@ -16,6 +16,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/*
+    Leaderboard Activity:
+    Makes a server request to UserDatabase Google Script and populates TableView with
+        top 5 names and scores
+    David Linn - dlinn@hmc.edu - 12/7/18
+ */
 public class LeaderboardActivity extends AppCompatActivity {
 
     @Override
