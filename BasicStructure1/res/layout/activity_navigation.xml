@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Navigation"
-    android:background="#FDF0D5">
+    android:background="#FDF0D">
 
 
     <android.support.design.widget.BottomNavigationView
@@ -26,13 +26,14 @@
         android:layout_width="match_parent"
         android:layout_height="92dp"
         android:layout_centerVertical="true"
+        android:layout_marginTop="36dp"
         android:fontFamily="@font/amiko_semibold"
         android:freezesText="true"
         android:gravity="center"
         android:text="Lawrence Livermore National Laboratory"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="30sp"
+        app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="50dp" />
+        tools:layout_editor_absoluteX="0dp" />
 </android.support.constraint.ConstraintLayout>

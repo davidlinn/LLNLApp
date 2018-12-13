@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.david.alpha.ActiveHoursActivity"
-    android:background="#FDF0D5">
+    android:background="#FDF0D">
 
     <TextView
         android:id="@+id/score_title"
