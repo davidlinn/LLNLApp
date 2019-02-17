@@ -42,7 +42,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.user_database_url);
         url += '?';
-        url += "Sheet=" + "Event1" + '&';
+        url += "Sheet=" + "Event2" + '&';
         url += "RequestType=Leaderboard";
         url = QRActivity.ensureValidURL(url);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -66,9 +66,17 @@ public class LeaderboardActivity extends AppCompatActivity {
                                 JSONArray scores = response.getJSONArray("leaderboardScores");
                                 for (int i = 0; i < 5; i++)
                                     score[i].setText(scores.getJSONArray(i).getString(0));
+
+                                //if there are empty strings in name, set the corresponding score
+                                //to the empty string.
+                                for(int i = 0; i < 5; i++){
+                                    if(name[i].getText().toString().equals("")){
+                                        score[i].setText("");
+                                    }
+                                }
                             }
                             catch (JSONException e) {
-                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR");
+                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR_A");
                             }
                         }
                         else {
@@ -77,7 +85,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                                         response.getString("error"));
                             }
                             catch (JSONException e) {
-                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR");
+                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR_B");
                             }
                         }
                     }

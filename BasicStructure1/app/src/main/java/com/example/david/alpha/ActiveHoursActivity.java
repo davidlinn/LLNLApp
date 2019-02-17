@@ -100,7 +100,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
         userTotalScore = userData.getInt(GlobalParams.TOTAL_SCORE_KEY,userTotalScore); //TODO: FIGURE OUT DEF VALUE
         userActiveHoursScore = userData.getInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
-        userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,userActiveHoursScore);
+        userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,userActiveHoursScore); //user QR code score?
 
         sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -160,7 +160,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
             //Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
             mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float) Math.sqrt(x * x + y * y + z * z);
+            mAccelCurrent = (float) Math.sqrt(x * x + y * y + z * z); // is there a more efficient way to norm?
             double delta = mAccelCurrent - mAccelLast;
             mAccel = mAccel * 0.9f + delta;
 
@@ -291,7 +291,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     };
 
     public void checkAtSpeed() {
-        if (mAccelCurrent >= GlobalParams.ACC_CUTOFF) {
+        if (mAccelCurrent >= GlobalParams.ACC_CUTOFF) { //has no correlation to actual speed
             atSpeed = false;
             Log.d("speed","too fast");
         }
@@ -372,7 +372,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.user_database_url);
         url += '?';
-        url += "Sheet=" + "Event1" + '&';
+        url += "Sheet=" + "Event2" + '&';
         url += "RequestType=DataPush&";
         url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
         url += "ActiveMinPoints=" + userActiveHoursScore + '&';
