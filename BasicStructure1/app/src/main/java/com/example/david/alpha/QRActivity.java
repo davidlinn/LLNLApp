@@ -154,8 +154,8 @@ public class QRActivity extends AppCompatActivity {
                 prefEditor.apply();
                 Log.d("QR Score", "added " + pointsToAdd + " points");
             }
-            catch (Exception exception) {
-                mResultTextView.setText("Couldn't add QR points");
+            catch (Exception e) {
+                mResultTextView.setText("Couldn\'t add any QR points");
             }
         }
         catch (Exception e) {
