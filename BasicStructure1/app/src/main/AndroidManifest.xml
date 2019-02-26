@@ -78,6 +78,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />
         </activity>
+        <activity android:name=".PuzzleInputActivity"
+            android:label="PuzzleInput">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.david.alpha.Navigation" />
+        </activity>
     </application>
 
 </manifest>
