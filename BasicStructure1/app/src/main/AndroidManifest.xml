@@ -79,7 +79,7 @@
                 android:value="com.example.david.alpha.Navigation" />
         </activity>
         <activity android:name=".PuzzleInputActivity"
-            android:label="PuzzleInput">
+            android:label="Answer Submission">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.david.alpha.Navigation" />

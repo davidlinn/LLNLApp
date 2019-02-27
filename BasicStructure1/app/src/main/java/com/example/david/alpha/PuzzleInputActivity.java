@@ -3,6 +3,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -32,6 +33,54 @@ public class PuzzleInputActivity extends AppCompatActivity {
 
     public void submitInput(View view) {
         final TextView AnswerDisplay = (TextView) findViewById(R.id.input_serverinfo);
-        AnswerDisplay.setText("success");
+        EditText editText = (EditText) findViewById(R.id.editText);
+        String answer = editText.getText().toString();
+        //Create queue that accepts requests
+        RequestQueue queue = Volley.newRequestQueue(this);
+        //Build URL and query string from JSON object
+        String url = getApplicationContext().getString(R.string.user_database_url);
+        url += '?';
+        url += "Sheet=" + "Event2" + '&';
+        url += "answer=" + answer;
+        url = QRActivity.ensureValidURL(url);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String str = response.toString();
+                        Log.e("QR JSON response",str);
+                        boolean result = false;
+                        try {
+                            result = response.getString("result").equals("success");
+                        }
+                        catch (JSONException exception) {
+                            AnswerDisplay.setText("failed");
+                        }
+                        if (result) {
+                            try {
+                                AnswerDisplay.setText("success");
+                            }
+                            catch (JSONException e) {
+                                AnswerDisplay.setText("failed");
+                            }
+                        }
+                        else {
+                            try {
+                                AnswerDisplay.setText("failed");
+                            }
+                            catch (JSONException e) {
+                                AnswerDisplay.setText("failed");
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        AnswerDisplay.setText("Error in HTTP Request");
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
     }
 }
