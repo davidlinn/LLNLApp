@@ -15,6 +15,7 @@
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="ground_truth_script_url">https://script.google.com/macros/s/AKfycbwao-wZcP1uFGIHPcuFy5UcWg2xA6uXnEOadYml--lyMJjHyfeB/exec</string>
     <string name="user_database_url">https://script.google.com/macros/s/AKfycbzASlD8AkqxaQnji_5BbmlVXF1dsVyV_UhG1HBWO2IyH2SaRzU_/exec</string>
+    <string name="answer_submission_url">https://script.google.com/macros/s/AKfycbzlZawIiWM2VgewOGnkHia_nIs6i0J8FKsxBKdVuXbduff02MI/exec</string>
     <string name="edit_message">answer</string>
     <string name="button_submit">submit</string>
 </resources>
