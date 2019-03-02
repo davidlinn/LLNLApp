@@ -42,6 +42,8 @@ public class PuzzleInputActivity extends AppCompatActivity {
 
     public void submitInput(View view) {
         final TextView AnswerDisplay = (TextView) findViewById(R.id.input_serverinfo);
+        String confirmation = "Answer submitted.  Checking answer...";
+        AnswerDisplay.setText(confirmation);
         EditText editText = (EditText) findViewById(R.id.editText);
         String answer = editText.getText().toString();
         //Create queue that accepts requests
