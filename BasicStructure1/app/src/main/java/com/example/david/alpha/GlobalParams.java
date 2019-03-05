@@ -16,7 +16,7 @@ public enum GlobalParams {;
     public static final String QRCODE_SCORE_KEY = "User_QRCodeScore";
     public static final String TOTAL_SCORE_KEY = "User_TotalScore";
     public static final String SENSOR_KEY = "Sensor_ID";
-    public static final String PUZZLEID_KEY = "Puzzle_ID";
+    //public static final String PUZZLEID_KEY = "Puzzle_ID";
 
     public static final String REMOTE_UPDATE_INFOURL = "https://raw.githubusercontent.com/SnekCharmer/App-deploy/master/versionInfo.txt"; //TODO: FIGURE OUT DOWNLOAD NOTIFICATIONS.
     public static final String REMOTE_UPDATE_HOSTURL = "https://github.com/SnekCharmer/App-deploy/blob/master/app-deploy.apk?raw=true";

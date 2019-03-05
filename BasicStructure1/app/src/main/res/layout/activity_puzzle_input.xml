@@ -6,12 +6,26 @@
     android:layout_height="match_parent"
     android:background="@drawable/lightorange">
 
+    <Spinner
+        android:id="@+id/puzzleSelect_spinner"
+        android:layout_width="364dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/editText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.132" />
+
     <EditText
         android:id="@+id/editText"
         android:layout_width="0dp"
         android:layout_height="43dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="76dp"
         android:ems="10"
         android:hint="@string/edit_message"
         android:inputType="textPersonName"
@@ -38,8 +52,8 @@
         android:id="@+id/input_serverinfo"
         android:layout_width="188dp"
         android:layout_height="88dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText" />
 </android.support.constraint.ConstraintLayout>

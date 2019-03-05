@@ -4,7 +4,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -26,7 +29,7 @@ import static com.example.david.alpha.ActiveHoursActivity.userData;
     got the puzzle right.
  */
 
-public class PuzzleInputActivity extends AppCompatActivity {
+public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     public String sharedPrefFile = "com.example.david.alpha";
     private static String PuzzleID;
@@ -36,8 +39,38 @@ public class PuzzleInputActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle_input);
 
-        userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        PuzzleID = userData.getString(GlobalParams.PUZZLEID_KEY, "PUZZLEA");
+        Spinner spinner = (Spinner) findViewById(R.id.puzzleSelect_spinner);
+        spinner.setOnItemSelectedListener(this);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.puzzle_options_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        //PuzzleID = userData.getString(GlobalParams.PUZZLEID_KEY, "PUZZLEA");
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        // An item was selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos)
+        String selectedPuzzle = parent.getItemAtPosition(pos).toString();
+        //String selectedPuzzle = spinner.getSelectedItem().toString();
+        String selectedPuzzleToPuzzleID = "";
+        for (char c : selectedPuzzle.toCharArray()) {
+            if (c != ' ')
+                selectedPuzzleToPuzzleID = selectedPuzzleToPuzzleID+c;
+        }
+        selectedPuzzleToPuzzleID = selectedPuzzleToPuzzleID.toUpperCase();
+        PuzzleID = selectedPuzzleToPuzzleID;
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
+        PuzzleID = "PUZZLE1";
     }
 
     public void submitInput(View view) {
