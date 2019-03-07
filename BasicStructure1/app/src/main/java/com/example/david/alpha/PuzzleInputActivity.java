@@ -21,6 +21,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+import java.util.ArrayList;
+
 import static com.example.david.alpha.ActiveHoursActivity.userData;
 
 /*
@@ -32,25 +35,21 @@ import static com.example.david.alpha.ActiveHoursActivity.userData;
 public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     public String sharedPrefFile = "com.example.david.alpha";
+    public static SharedPreferences userData;
+    //public static String[] listOfPuzzleNames = {"uninitialized"}; // set as an arraylist instead so the size can be dynamic instead of static?  Then can copy into an array of strings
+    //public static ArrayList<String> listOfPuzzleNames;
     private static String PuzzleID;
+    //private static String Puzzle1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_puzzle_input);
 
-        Spinner spinner = (Spinner) findViewById(R.id.puzzleSelect_spinner);
-        spinner.setOnItemSelectedListener(this);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.puzzle_options_array, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
+        getPuzzleOptions();
 
         //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        //PuzzleID = userData.getString(GlobalParams.PUZZLEID_KEY, "PUZZLEA");
+        //Puzzle1 = userData.getString(GlobalParams.PUZZLEID_KEY, "PUZZLEA");
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
@@ -73,6 +72,76 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         PuzzleID = "PUZZLE1";
     }
 
+    public void getPuzzleOptions() {
+        final TextView AnswerDisplay = (TextView) findViewById(R.id.input_serverinfo);
+        //Create queue that accepts requests
+        RequestQueue queue = Volley.newRequestQueue(this);
+        //Build URL and query string from JSON object
+        String url = getApplicationContext().getString(R.string.answer_submission_url);
+        url += '?';
+        url += "Sheet=" + "Sheet1" + '&';
+        url += "RequestType=" + "GetPuzzleNames";
+        url = QRActivity.ensureValidURL(url);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String str = response.toString();
+                        Log.e("QR JSON response",str);
+                        boolean result = false;
+                        try {
+                            result = response.getString("result").equals("success");
+
+                            JSONArray arrJson = response.getJSONArray("puzzleNames");
+                            String[] puzzleNames = new String[arrJson.length()];
+                            for(int i=0;i<arrJson.length();i++)
+                            {
+                                puzzleNames[i] = arrJson.getString(i);
+                            }
+                            Spinner spinner = (Spinner) findViewById(R.id.puzzleSelect_spinner);
+                            // Create an ArrayAdapter using the string array and a default spinner layout
+                            //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                            //        R.array.puzzle_options_array, android.R.layout.simple_spinner_item);
+                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(PuzzleInputActivity.this, android.R.layout.simple_spinner_item, puzzleNames);
+                            // Specify the layout to use when the list of choices appears
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            // Apply the adapter to the spinner
+                            spinner.setAdapter(adapter);
+                            spinner.setOnItemSelectedListener(PuzzleInputActivity.this); //this
+                        }
+                        catch (JSONException exception) {
+                            AnswerDisplay.setText("Json request failed");
+                        }
+
+
+                            //SharedPreferences.Editor prefEditor = userData.edit();
+                            //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
+                            //prefEditor.apply();
+                            //}
+                            //catch (JSONException e) {
+                            //    AnswerDisplay.setText("failed");
+                            //}
+                        }/*
+                        else {
+                            try {
+                                AnswerDisplay.setText("failed");
+                            }
+                            catch (JSONException e) {
+                                AnswerDisplay.setText("failed");
+                            }
+                        }*/
+
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        AnswerDisplay.setText("Error in HTTP Request");
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
+    }
+
     public void submitInput(View view) {
         final TextView AnswerDisplay = (TextView) findViewById(R.id.input_serverinfo);
         String confirmation = "Answer submitted.  Checking answer...";
@@ -86,6 +155,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         url += '?';
         url += "Sheet=" + "Sheet1" + '&';
         url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
+        url += "RequestType=" + "AnswerSubmission" + "&";
         url += "PuzzleID=" + PuzzleID + '&';
         url += "SubmittedAnswer=" + answer;
         url = QRActivity.ensureValidURL(url);
@@ -107,7 +177,15 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         if (result) {
                             //try {
                                 AnswerDisplay.setText(correctness);
-
+                                if (correctness.equals("Correct!")) {
+                                    int pointsToAdd = 50;
+                                    ActiveHoursActivity.userQRCodeScore += pointsToAdd;
+                                    ActiveHoursActivity.userTotalScore += pointsToAdd;
+                                    SharedPreferences.Editor prefEditor = ActiveHoursActivity.userData.edit();
+                                    prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, ActiveHoursActivity.userQRCodeScore);
+                                    prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, ActiveHoursActivity.userTotalScore);
+                                    prefEditor.apply();
+                                }
                                 //SharedPreferences.Editor prefEditor = userData.edit();
                                 //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
                                 //prefEditor.apply();
