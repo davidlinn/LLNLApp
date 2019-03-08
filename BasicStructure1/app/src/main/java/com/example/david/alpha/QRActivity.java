@@ -120,8 +120,32 @@ public class QRActivity extends AppCompatActivity {
                             catch (JSONException exception) {
                                 mResultTextView.setText("JSON String returned by server has no field 'result'.");
                             }
-                            if (result)
+                            if (result) {
                                 mResultTextView.setText("Successfully updated Google Sheet");
+
+                                //Check the JSON response for a "Prerequisite" field. If there is
+                                //a prerequisite, that means the user must have completed a puzzle
+                                // ("prereq") in order to qualify for ten additional points for that
+                                // scan.
+                                String prereq = "";
+
+                                try{
+                                    prereq = response.getString("Prerequisite");
+                                }catch (JSONException exception){
+                                    Log.e("No Prerequisite field", str);
+                                }
+
+                                if (!prereq.isEmpty()){ //if there is a prerequisite, require it.
+                                    if(wasPuzzleCompleted(prereq)){
+                                        incrementUserQRCodeScore(15);
+                                        mResultTextView.setText("Successfully updated Google Sheet. You got extra points!");
+                                        putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
+                                        //extra points again.
+
+                                        //ten points for Gryffindor! (also adds ten for being P class code)
+                                    }
+                                }
+                            }
                             else
                                 mResultTextView.setText("Connected to server but failed to update Google Sheet");
                         }
@@ -145,7 +169,7 @@ public class QRActivity extends AppCompatActivity {
                     Log.d("QR type", "D");
                     break;
                 case 'P':
-                    pointsToAdd = 60;
+                    pointsToAdd = 5;
                     Log.d("QR type", "P");
                     break;
                 default:
@@ -259,6 +283,20 @@ public class QRActivity extends AppCompatActivity {
     private int getUserQRCodeScore(){
         String key = GlobalParams.QRCODE_SCORE_KEY;
         return getInt(key);
+    }
+
+    private Boolean wasPuzzleCompleted(String puzzleID){
+        return userData.getBoolean(puzzleID, false);
+    }
+
+    private void setPuzzleCompleted(String puzzleID){
+        putBoolean(puzzleID, true);
+    }
+
+    private void putBoolean(String key, Boolean value){
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
     }
 
     //puts an int in userData

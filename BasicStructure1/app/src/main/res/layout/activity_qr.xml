@@ -13,17 +13,20 @@ android:background="@drawable/lightorange" >
 
         android:id="@+id/result_textview"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
+        android:layout_height="241dp"
         android:layout_centerVertical="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:fontFamily="@font/amiko_semibold"
         android:freezesText="true"
         android:gravity="center"
         android:text="@string/no_barcode_captured"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/scan_barcode_button"
+        app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="164dp" />
+        tools:layout_editor_absoluteX="0dp" />
 
     <Button
         android:id="@+id/scan_barcode_button"

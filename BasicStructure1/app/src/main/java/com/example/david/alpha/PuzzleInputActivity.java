@@ -175,7 +175,8 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                                 if(alreadyCompleted){
                                     AnswerDisplay.setText(correctness + "\nYou already completed this puzzle.");
                                 }else {
-                                    int pointsToAdd = 50;
+                                    int pointsToAdd = 20;
+                                    setPuzzleCompleted(PuzzleID);
                                     incrementUserQRCodeScore(pointsToAdd);
                                     AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!");
                                 }
@@ -276,6 +277,20 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         return getInt(key);
     }
 
+    private Boolean wasPuzzleCompleted(String puzzleID){
+        return userData.getBoolean(puzzleID, false);
+    }
+
+    private void setPuzzleCompleted(String puzzleID){
+        putBoolean(puzzleID, true);
+    }
+
+    private void putBoolean(String key, Boolean value){
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
     //puts an int in userData
     //https://stackoverflow.com/questions/2614719/how-do-i-get-the-sharedpreferences-from-a-preferenceactivity-in-android
     private static void putInt(String key, int value) {
@@ -285,7 +300,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     }
 
     //gets an int from userData
-    private static int getInt(String key) { ;
+    private static int getInt(String key) {
         return userData.getInt(key,  -1);
     }
 
