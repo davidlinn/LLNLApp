@@ -178,7 +178,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                                     int pointsToAdd = 20;
                                     setPuzzleCompleted(PuzzleID);
                                     incrementUserQRCodeScore(pointsToAdd);
-                                    AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!");
+                                    AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!" + "\nYou have unlocked the bonus QR code.");
                                 }
 
                             }

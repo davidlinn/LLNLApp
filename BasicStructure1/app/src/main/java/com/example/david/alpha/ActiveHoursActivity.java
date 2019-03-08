@@ -517,7 +517,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
     //gets an int from userData
     private static int getInt(String key) { ;
-        return userData.getInt(key,  -1);
+        return userData.getInt(key,  0);
     }
 
 }

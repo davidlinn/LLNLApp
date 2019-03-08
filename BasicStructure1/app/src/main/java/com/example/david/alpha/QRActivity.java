@@ -138,7 +138,7 @@ public class QRActivity extends AppCompatActivity {
                                 if (!prereq.isEmpty()){ //if there is a prerequisite, require it.
                                     if(wasPuzzleCompleted(prereq)){
                                         incrementUserQRCodeScore(15);
-                                        mResultTextView.setText("Successfully updated Google Sheet. You got extra points!");
+                                        mResultTextView.setText("Successfully updated Google Sheet. You got extra points!" + "\nYou have used your bonus.");
                                         putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
                                         //extra points again.
 
