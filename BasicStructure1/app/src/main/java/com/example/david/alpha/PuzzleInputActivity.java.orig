@@ -40,8 +40,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     public static int userQRCodeScore;
     public static int userTotalScore;
     */
-    public static SharedPreferences userData;
-    public String sharedPrefFile = "com.example.david.alpha";
+
     private static String PuzzleID;
     //private static String Puzzle1;
 
@@ -54,6 +53,12 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         setContentView(R.layout.activity_puzzle_input);
 
         getPuzzleOptions();
+
+<<<<<<< HEAD
+        //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        //Puzzle1 = userData.getString(GlobalParams.PUZZLEID_KEY, "Incomplete");
+=======
+>>>>>>> 960b13b2cd32ffd58a7a102ec0d456ef684e2ead
     }
 
     @Override
@@ -115,7 +120,27 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                             AnswerDisplay.setText("Json request failed");
                             Log.e("JSON request failed.", exception.toString());
                         }
+<<<<<<< HEAD
+                            //SharedPreferences.Editor prefEditor = userData.edit();
+                            //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
+                            //prefEditor.apply();
+                            //}
+                            //catch (JSONException e) {
+                            //    AnswerDisplay.setText("failed");
+                            //}
+                        }/*
+                        else {
+                            try {
+                                AnswerDisplay.setText("failed");
+                            }
+                            catch (JSONException e) {
+                                AnswerDisplay.setText("failed");
+                            }
+                        }*/
+=======
+
                     }
+>>>>>>> 960b13b2cd32ffd58a7a102ec0d456ef684e2ead
 
                 }, new Response.ErrorListener() {
 
@@ -158,18 +183,37 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         Log.e("QR JSON response",str);
 
                         boolean result = false;
+                        boolean alreadyCompleted = false;
 
                         String correctness = "";
                         boolean alreadyCompleted = false;
                         try {
                             result = response.getString("result").equals("success");
                             correctness = response.getString(("correct?"));
+<<<<<<< HEAD
+                            alreadyCompleted = response.getBoolean(("alreadyCompleted?"));
+=======
                             alreadyCompleted = response.getString(("alreadyCompleted?")) == "true";
+>>>>>>> 960b13b2cd32ffd58a7a102ec0d456ef684e2ead
                         }
                         catch (JSONException exception) {
                             AnswerDisplay.setText(correctness);
                         }
                         if (result) {
+<<<<<<< HEAD
+                            //try {
+                                AnswerDisplay.setText(correctness);
+                                if (correctness.equals("Correct!") && alreadyCompleted == false) {
+                                    int pointsToAdd = 500;
+                                    ActiveHoursActivity.userQRCodeScore += pointsToAdd;
+                                    ActiveHoursActivity.userTotalScore += pointsToAdd;
+                                    SharedPreferences.Editor prefEditor = ActiveHoursActivity.userData.edit();
+                                    prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, ActiveHoursActivity.userQRCodeScore);
+                                    prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, ActiveHoursActivity.userTotalScore);
+                                    prefEditor.apply();
+
+
+=======
                             AnswerDisplay.setText(correctness);
                             if (correctness.equals("Correct!")) {
                                 if(alreadyCompleted){
@@ -178,6 +222,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                                     int pointsToAdd = 50;
                                     incrementUserQRCodeScore(pointsToAdd);
                                     AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!");
+>>>>>>> 960b13b2cd32ffd58a7a102ec0d456ef684e2ead
                                 }
 
                             }

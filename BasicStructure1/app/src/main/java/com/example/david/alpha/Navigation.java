@@ -95,6 +95,9 @@ public class Navigation extends AppCompatActivity {
         }
         catch(Exception e) {
             Toast.makeText(this,"Could not update", Toast.LENGTH_SHORT);
+
+
+
             Log.d("update", "Update failed");
         }
 
