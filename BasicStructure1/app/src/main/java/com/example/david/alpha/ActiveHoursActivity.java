@@ -74,9 +74,15 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static boolean sensorRegistered;
     private static boolean atSpeed;
     private static String sensorID;
+    /*
+    //NOTE: I have removed these static variables, instead directly accessing or modifying values
+    //in userData with incrementActiveHoursScore(), getUserActiveHoursScore(), getUserTotalScore(), and
+    //getUserQRCodeScore(). -Tim, 3/7/19
+
     private static int userActiveHoursScore;
     public static int userQRCodeScore;
     public static int userTotalScore;
+    */
     public static boolean active = false;
 
     private static long startRestTime;
@@ -94,13 +100,16 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scoring);
 
         userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
+        setContentView(R.layout.activity_scoring);
+
+        /*
         userTotalScore = userData.getInt(GlobalParams.TOTAL_SCORE_KEY,userTotalScore); //TODO: FIGURE OUT DEF VALUE
         userActiveHoursScore = userData.getInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
         userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,userActiveHoursScore); //user QR code score?
+        */
 
         sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -116,17 +125,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         checkAttached();
 
-        String totalScoreString = Integer.toString(userTotalScore);
+        String totalScoreString = Integer.toString(getUserTotalScore());
         TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
         totalScoreDisplay.setBackgroundColor(Color.RED);
         totalScoreDisplay.setText(totalScoreString);
 
-        String QRScoreString = Integer.toString(userQRCodeScore);
+        String QRScoreString = Integer.toString(getUserQRCodeScore());
         TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
         activeDisplay.setBackgroundColor(Color.LTGRAY);
         activeDisplay.setText(QRScoreString);
 
-        String activeHoursScoreString = Integer.toString(userActiveHoursScore);
+        String activeHoursScoreString = Integer.toString(getUserActiveHoursScore());
         TextView QRDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
         QRDisplay.setBackgroundColor(Color.LTGRAY);
         QRDisplay.setText(activeHoursScoreString);
@@ -136,7 +145,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void onResume() {
         super.onResume();
         TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
-        String QRScoreString = Integer.toString(userQRCodeScore);
+
+        String QRScoreString = Integer.toString(getUserQRCodeScore());
         Log.d("QRCodeScore",QRScoreString);
         activeDisplay.setText(QRScoreString);
         pushPointsToServer();
@@ -338,22 +348,15 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             //checkAttached();
             checkAtSpeed();
             int point = (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0);
-            userActiveHoursScore += point;
-            userTotalScore += point;
 
-            SharedPreferences.Editor prefEditor = userData.edit();
-            prefEditor.putInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
-            prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, userQRCodeScore);
-            prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, userTotalScore);
-            prefEditor.apply();
-            Log.d("scoring", "Point assigned");
+            incrementUserActiveHoursScore();
 
 
-            String scoreDisplay = Integer.toString(userTotalScore);
+            String scoreDisplay = Integer.toString(getUserTotalScore());
             TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
             totalScoreDisplay.setText(scoreDisplay);
 
-            scoreDisplay = Integer.toString(userActiveHoursScore);
+            scoreDisplay = Integer.toString(getUserActiveHoursScore());
             TextView activeHoursScoreDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
             activeHoursScoreDisplay.setText(scoreDisplay);
 
@@ -375,9 +378,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         url += "Sheet=" + "Event2" + '&';
         url += "RequestType=DataPush&";
         url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
-        url += "ActiveMinPoints=" + userActiveHoursScore + '&';
-        url += "QRCodePoints=" + userQRCodeScore;
-        url = QRActivity.ensureValidURL(url);
+        url += "ActiveMinPoints=" + getUserActiveHoursScore() + '&';
+        url += "QRCodePoints=" + getUserQRCodeScore();
+        url = ensureValidURL(url);
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -419,6 +423,101 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 });
 
         queue.add(jsonObjectRequest);
+    }
+
+    public static String ensureValidURL(String url) {
+        //Turn all spaces in String into '+' characters
+        String s = "";
+        for (char c : url.toCharArray()) {
+            if (c == ' ')
+                s = s+'+';
+            else
+                s = s+c;
+        }
+        return s;
+    }
+
+
+    //SETTERS AND GETTERS FOR USERACTIVEHOURSSCORE, USERQRCODESCORE, AND USERTOTALSCORE
+
+    //increases ActiveHoursScore and UserTotalScore by 1 in userData
+    private void incrementUserActiveHoursScore(){
+        incrementUserActiveHoursScore(1);
+    }
+
+    //increases ActiveHoursScore and UserTotalScore by amount in userData
+    private void incrementUserActiveHoursScore(int amount){
+
+        int currentActiveHoursScore = getUserActiveHoursScore();
+
+        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
+        putInt(key, currentActiveHoursScore + amount);
+
+        incrementUserTotalScore(amount);
+
+        Log.d("scoring", "Active Hours point(s) incremented");
+    }
+
+    //increases userQRCodeScore and UserTotalScore by 1 in userData
+    private void incrementUserQRCodeScore(){
+        incrementUserQRCodeScore(1);
+    }
+
+    //increases ActiveHoursScore and UserTotalScore by amount in userData
+    private void incrementUserQRCodeScore(int amount){
+
+        int currentUserQRCodeScore = getUserQRCodeScore();
+
+        String key = GlobalParams.QRCODE_SCORE_KEY;
+        putInt(key, currentUserQRCodeScore + amount);
+
+        incrementUserTotalScore(amount);
+
+        Log.d("scoring", "QR Code point(s) incremented");
+    }
+
+    private void incrementUserTotalScore(){
+        incrementUserTotalScore(1);
+    }
+
+    //increase the userTotalScore in userData by amount. Note: this should only be called by
+    //incrementActiveHoursScore in ActiveHoursActivity to avoid redundant point assignment.
+    private void incrementUserTotalScore(int amount){
+
+        int currentUserTotalScore = getUserTotalScore();
+
+        String key = GlobalParams.TOTAL_SCORE_KEY;
+        putInt(key, currentUserTotalScore + amount);
+
+        Log.d("scoring", "Active Hours point(s) incremented");
+    }
+
+    private int getUserActiveHoursScore(){
+        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
+        return getInt(key);
+    }
+
+    private int getUserTotalScore(){
+        String key = GlobalParams.TOTAL_SCORE_KEY;
+        return getInt(key);
+    }
+
+    private int getUserQRCodeScore(){
+        String key = GlobalParams.QRCODE_SCORE_KEY;
+        return getInt(key);
+    }
+
+    //puts an int in userData
+    //https://stackoverflow.com/questions/2614719/how-do-i-get-the-sharedpreferences-from-a-preferenceactivity-in-android
+    private static void putInt(String key, int value) {
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putInt(key, value);
+        editor.apply();
+    }
+
+    //gets an int from userData
+    private static int getInt(String key) { ;
+        return userData.getInt(key,  -1);
     }
 
 }

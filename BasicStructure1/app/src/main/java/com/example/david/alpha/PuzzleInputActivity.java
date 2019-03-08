@@ -1,4 +1,5 @@
 package com.example.david.alpha;
+import android.arch.lifecycle.LifecycleObserver;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,7 +33,15 @@ import static com.example.david.alpha.ActiveHoursActivity.userData;
     got the puzzle right.
  */
 
-public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+    /*
+    I removed these. -Tim, 3/7/19
+    //these values are taken from the userPreferences object that is set in
+    //ActiveHoursActivity
+    private static int userActiveHoursScore;
+    public static int userQRCodeScore;
+    public static int userTotalScore;
+    */
 
     public String sharedPrefFile = "com.example.david.alpha";
     public static SharedPreferences userData;
@@ -44,14 +53,22 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+
         setContentView(R.layout.activity_puzzle_input);
 
         getPuzzleOptions();
 
-        //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        //Puzzle1 = userData.getString(GlobalParams.PUZZLEID_KEY, "PUZZLEA");
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        //read in Active Hours points from userData
+
+    }
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
         // An item was selected. You can retrieve the selected item using
@@ -111,25 +128,10 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         }
                         catch (JSONException exception) {
                             AnswerDisplay.setText("Json request failed");
+                            Log.e("JSON request failed.", exception.toString());
                         }
 
-
-                            //SharedPreferences.Editor prefEditor = userData.edit();
-                            //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
-                            //prefEditor.apply();
-                            //}
-                            //catch (JSONException e) {
-                            //    AnswerDisplay.setText("failed");
-                            //}
-                        }/*
-                        else {
-                            try {
-                                AnswerDisplay.setText("failed");
-                            }
-                            catch (JSONException e) {
-                                AnswerDisplay.setText("failed");
-                            }
-                        }*/
+                    }
 
                 }, new Response.ErrorListener() {
 
@@ -143,13 +145,17 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     }
 
     public void submitInput(View view) {
+
         final TextView AnswerDisplay = (TextView) findViewById(R.id.input_serverinfo);
         String confirmation = "Answer submitted.  Checking answer...";
         AnswerDisplay.setText(confirmation);
+
         EditText editText = (EditText) findViewById(R.id.editText);
         String answer = editText.getText().toString();
+
         //Create queue that accepts requests
         RequestQueue queue = Volley.newRequestQueue(this);
+
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.answer_submission_url);
         url += '?';
@@ -158,50 +164,40 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         url += "RequestType=" + "AnswerSubmission" + "&";
         url += "PuzzleID=" + PuzzleID + '&';
         url += "SubmittedAnswer=" + answer;
-        url = QRActivity.ensureValidURL(url);
+        url = ensureValidURL(url);
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         String str = response.toString();
                         Log.e("QR JSON response",str);
+
                         boolean result = false;
+                        boolean alreadyCompleted = false;
+
                         String correctness = "";
                         try {
                             result = response.getString("result").equals("success");
                             correctness = response.getString(("correct?"));
+                            alreadyCompleted = response.getString(("alreadyCompleted?")) == "true";
                         }
                         catch (JSONException exception) {
                             AnswerDisplay.setText(correctness);
                         }
                         if (result) {
-                            //try {
-                                AnswerDisplay.setText(correctness);
-                                if (correctness.equals("Correct!")) {
+                            AnswerDisplay.setText(correctness);
+                            if (correctness.equals("Correct!")) {
+                                if(alreadyCompleted){
+                                    AnswerDisplay.setText(correctness + "\nYou already completed this puzzle.");
+                                }else {
                                     int pointsToAdd = 50;
-                                    ActiveHoursActivity.userQRCodeScore += pointsToAdd;
-                                    ActiveHoursActivity.userTotalScore += pointsToAdd;
-                                    SharedPreferences.Editor prefEditor = ActiveHoursActivity.userData.edit();
-                                    prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, ActiveHoursActivity.userQRCodeScore);
-                                    prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, ActiveHoursActivity.userTotalScore);
-                                    prefEditor.apply();
+                                    incrementUserQRCodeScore(pointsToAdd);
+                                    AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!");
                                 }
-                                //SharedPreferences.Editor prefEditor = userData.edit();
-                                //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
-                                //prefEditor.apply();
-                            //}
-                            //catch (JSONException e) {
-                            //    AnswerDisplay.setText("failed");
-                            //}
-                        }/*
-                        else {
-                            try {
-                                AnswerDisplay.setText("failed");
+
                             }
-                            catch (JSONException e) {
-                                AnswerDisplay.setText("failed");
-                            }
-                        }*/
+                        }
                     }
                 }, new Response.ErrorListener() {
 
@@ -212,5 +208,101 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                 });
 
         queue.add(jsonObjectRequest);
+
     }
+
+    public static String ensureValidURL(String url) {
+        //Turn all spaces in String into '+' characters
+        String s = "";
+        for (char c : url.toCharArray()) {
+            if (c == ' ')
+                s = s+'+';
+            else
+                s = s+c;
+        }
+        return s;
+    }
+
+    //SETTERS AND GETTERS FOR USERACTIVEHOURSSCORE, USERQRCODESCORE, AND USERTOTALSCORE
+
+    //increases ActiveHoursScore and UserTotalScore by 1 in userData
+    private void incrementUserActiveHoursScore(){
+        incrementUserActiveHoursScore(1);
+    }
+
+    //increases ActiveHoursScore and UserTotalScore by amount in userData
+    private void incrementUserActiveHoursScore(int amount){
+
+        int currentActiveHoursScore = getUserActiveHoursScore();
+
+        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
+        putInt(key, currentActiveHoursScore + amount);
+
+        incrementUserTotalScore(amount);
+
+        Log.d("scoring", "Active Hours point(s) incremented");
+    }
+
+    //increases userQRCodeScore and UserTotalScore by 1 in userData
+    private void incrementUserQRCodeScore(){
+        incrementUserQRCodeScore(1);
+    }
+
+    //increases ActiveHoursScore and UserTotalScore by amount in userData
+    private void incrementUserQRCodeScore(int amount){
+
+        int currentUserQRCodeScore = getUserQRCodeScore();
+
+        String key = GlobalParams.QRCODE_SCORE_KEY;
+        putInt(key, currentUserQRCodeScore + amount);
+
+        incrementUserTotalScore(amount);
+
+        Log.d("scoring", "QR Code point(s) incremented");
+    }
+
+    private void incrementUserTotalScore(){
+        incrementUserTotalScore(1);
+    }
+
+    //increase the userTotalScore in userData by amount. Note: this should only be called by
+    //incrementActiveHoursScore in ActiveHoursActivity to avoid redundant point assignment.
+    private void incrementUserTotalScore(int amount){
+
+        int currentUserTotalScore = getUserTotalScore();
+
+        String key = GlobalParams.TOTAL_SCORE_KEY;
+        putInt(key, currentUserTotalScore + amount);
+
+        Log.d("scoring", "Active Hours point(s) incremented");
+    }
+
+    private int getUserActiveHoursScore(){
+        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
+        return getInt(key);
+    }
+
+    private int getUserTotalScore(){
+        String key = GlobalParams.TOTAL_SCORE_KEY;
+        return getInt(key);
+    }
+
+    private int getUserQRCodeScore(){
+        String key = GlobalParams.QRCODE_SCORE_KEY;
+        return getInt(key);
+    }
+
+    //puts an int in userData
+    //https://stackoverflow.com/questions/2614719/how-do-i-get-the-sharedpreferences-from-a-preferenceactivity-in-android
+    private static void putInt(String key, int value) {
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putInt(key, value);
+        editor.apply();
+    }
+
+    //gets an int from userData
+    private static int getInt(String key) { ;
+        return userData.getInt(key,  -1);
+    }
+
 }
