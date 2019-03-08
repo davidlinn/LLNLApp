@@ -45,6 +45,8 @@ public class Navigation extends AppCompatActivity {
                     //mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_puzzles:
+                    Intent puzzleIntent = new Intent(getApplicationContext(), PuzzleInputActivity.class);
+                    startActivity(puzzleIntent);
                     //mTextMessage.setText("Puzzles");
                     return true;
                 case R.id.navigation_qrScanner:
@@ -93,6 +95,9 @@ public class Navigation extends AppCompatActivity {
         }
         catch(Exception e) {
             Toast.makeText(this,"Could not update", Toast.LENGTH_SHORT);
+
+
+
             Log.d("update", "Update failed");
         }
 

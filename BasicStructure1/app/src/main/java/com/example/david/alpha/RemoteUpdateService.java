@@ -65,8 +65,8 @@ public class RemoteUpdateService extends IntentService {
                 Log.d("Remote Updater", "Update started");
                 return;
             } else {
-                Toast.makeText(context, "App up to date", Toast.LENGTH_SHORT).show();
-                Log.d("Remote Updater","App up to date; onboard - " + Integer.toString(currentCodeVersion) + "; online - " + Integer.toString(nextCodeVersion));
+                //Toast.makeText(context, "App up to date", Toast.LENGTH_SHORT).show();
+                //Log.d("Remote Updater","App up to date; onboard - " + Integer.toString(currentCodeVersion) + "; online - " + Integer.toString(nextCodeVersion));
                 return;
             }
         //} else {

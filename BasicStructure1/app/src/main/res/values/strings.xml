@@ -8,6 +8,12 @@
     <string name="no_barcode_captured">No barcode captured</string>
     <string name="barcode_error_format">"Error reading barcode: %1$s"</string>
 
+    <string-array name="puzzle_options_array">
+        <item>Puzzle 1</item>
+        <item>Puzzle 2</item>
+        <item>Puzzle 3</item>
+    </string-array>
+
     <!-- Strings related to barcode scanner -->
     <string name="ok">OK</string>
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
@@ -15,4 +21,7 @@
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
     <string name="ground_truth_script_url">https://script.google.com/macros/s/AKfycbwao-wZcP1uFGIHPcuFy5UcWg2xA6uXnEOadYml--lyMJjHyfeB/exec</string>
     <string name="user_database_url">https://script.google.com/macros/s/AKfycbzASlD8AkqxaQnji_5BbmlVXF1dsVyV_UhG1HBWO2IyH2SaRzU_/exec</string>
+    <string name="answer_submission_url">https://script.google.com/macros/s/AKfycbzlZawIiWM2VgewOGnkHia_nIs6i0J8FKsxBKdVuXbduff02MI/exec</string>
+    <string name="edit_message">answer</string>
+    <string name="button_submit">submit</string>
 </resources>
