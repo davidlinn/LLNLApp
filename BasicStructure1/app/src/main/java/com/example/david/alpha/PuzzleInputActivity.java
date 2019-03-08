@@ -22,8 +22,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-import java.util.ArrayList;
-
 import static com.example.david.alpha.ActiveHoursActivity.userData;
 
 /*
@@ -34,10 +32,6 @@ import static com.example.david.alpha.ActiveHoursActivity.userData;
 
 public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    public String sharedPrefFile = "com.example.david.alpha";
-    public static SharedPreferences userData;
-    //public static String[] listOfPuzzleNames = {"uninitialized"}; // set as an arraylist instead so the size can be dynamic instead of static?  Then can copy into an array of strings
-    //public static ArrayList<String> listOfPuzzleNames;
     private static String PuzzleID;
     //private static String Puzzle1;
 
@@ -49,7 +43,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         getPuzzleOptions();
 
         //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-        //Puzzle1 = userData.getString(GlobalParams.PUZZLEID_KEY, "PUZZLEA");
+        //Puzzle1 = userData.getString(GlobalParams.PUZZLEID_KEY, "Incomplete");
     }
 
     public void onItemSelected(AdapterView<?> parent, View view,
@@ -57,14 +51,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         // An item was selected. You can retrieve the selected item using
         // parent.getItemAtPosition(pos)
         String selectedPuzzle = parent.getItemAtPosition(pos).toString();
-        //String selectedPuzzle = spinner.getSelectedItem().toString();
-        String selectedPuzzleToPuzzleID = "";
-        for (char c : selectedPuzzle.toCharArray()) {
-            if (c != ' ')
-                selectedPuzzleToPuzzleID = selectedPuzzleToPuzzleID+c;
-        }
-        selectedPuzzleToPuzzleID = selectedPuzzleToPuzzleID.toUpperCase();
-        PuzzleID = selectedPuzzleToPuzzleID;
+        PuzzleID = selectedPuzzle;
     }
 
     public void onNothingSelected(AdapterView<?> parent) {
@@ -100,8 +87,6 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                             }
                             Spinner spinner = (Spinner) findViewById(R.id.puzzleSelect_spinner);
                             // Create an ArrayAdapter using the string array and a default spinner layout
-                            //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                            //        R.array.puzzle_options_array, android.R.layout.simple_spinner_item);
                             ArrayAdapter<String> adapter = new ArrayAdapter<String>(PuzzleInputActivity.this, android.R.layout.simple_spinner_item, puzzleNames);
                             // Specify the layout to use when the list of choices appears
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -112,8 +97,6 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         catch (JSONException exception) {
                             AnswerDisplay.setText("Json request failed");
                         }
-
-
                             //SharedPreferences.Editor prefEditor = userData.edit();
                             //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
                             //prefEditor.apply();
@@ -167,9 +150,11 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         Log.e("QR JSON response",str);
                         boolean result = false;
                         String correctness = "";
+                        boolean alreadyCompleted = false;
                         try {
                             result = response.getString("result").equals("success");
                             correctness = response.getString(("correct?"));
+                            alreadyCompleted = response.getBoolean(("alreadyCompleted?"));
                         }
                         catch (JSONException exception) {
                             AnswerDisplay.setText(correctness);
@@ -177,14 +162,16 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         if (result) {
                             //try {
                                 AnswerDisplay.setText(correctness);
-                                if (correctness.equals("Correct!")) {
-                                    int pointsToAdd = 50;
+                                if (correctness.equals("Correct!") && alreadyCompleted == false) {
+                                    int pointsToAdd = 500;
                                     ActiveHoursActivity.userQRCodeScore += pointsToAdd;
                                     ActiveHoursActivity.userTotalScore += pointsToAdd;
                                     SharedPreferences.Editor prefEditor = ActiveHoursActivity.userData.edit();
                                     prefEditor.putInt(GlobalParams.QRCODE_SCORE_KEY, ActiveHoursActivity.userQRCodeScore);
                                     prefEditor.putInt(GlobalParams.TOTAL_SCORE_KEY, ActiveHoursActivity.userTotalScore);
                                     prefEditor.apply();
+
+
                                 }
                                 //SharedPreferences.Editor prefEditor = userData.edit();
                                 //prefEditor.putString(GlobalParams.PUZZLEID_KEY, PuzzleID);
