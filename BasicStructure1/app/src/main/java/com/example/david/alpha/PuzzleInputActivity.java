@@ -135,7 +135,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         AnswerDisplay.setText(confirmation);
 
         EditText editText = (EditText) findViewById(R.id.editText);
-        String answer = editText.getText().toString();
+        String answer = editText.getText().toString().toLowerCase();
 
         //Create queue that accepts requests
         RequestQueue queue = Volley.newRequestQueue(this);
