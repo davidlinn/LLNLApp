@@ -106,6 +106,8 @@ public class QRActivity extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT < 26)
                 url += "PhoneSerial=" + Build.SERIAL;
             url = ensureValidURL(url);
+
+
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 

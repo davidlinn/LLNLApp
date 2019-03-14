@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -43,6 +44,8 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     public static SharedPreferences userData;
     public String sharedPrefFile = "com.example.david.alpha";
     private static String PuzzleID;
+    private final int MY_SOCKET_TIMEOUT_MS = 10000;
+
     //private static String Puzzle1;
 
     @Override
@@ -122,6 +125,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         AnswerDisplay.setText("Error in HTTP Request");
+
                     }
                 });
 
@@ -149,6 +153,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         url += "PuzzleID=" + PuzzleID + '&';
         url += "SubmittedAnswer=" + answer;
         url = ensureValidURL(url);
+        Log.e("JSON request", url);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -191,6 +196,11 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         AnswerDisplay.setText("Error in HTTP Request");
                     }
                 });
+
+                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                        MY_SOCKET_TIMEOUT_MS,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         queue.add(jsonObjectRequest);
 
