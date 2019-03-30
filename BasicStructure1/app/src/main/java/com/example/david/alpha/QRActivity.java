@@ -77,8 +77,9 @@ public class QRActivity extends AppCompatActivity {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     Point[] p = barcode.cornerPoints;
                     mResultTextView.setText(barcode.displayValue);
-                    if (barcode.displayValue.length() == 6) //QR codes should return String of len 6
+                    if (barcode.displayValue.length() == 6) {//QR codes should return String of len 6
                         groundTruth(barcode.displayValue);
+                    }
                     else
                         mResultTextView.setText(barcode.displayValue+", Invalid QR code");
                 } else mResultTextView.setText(R.string.no_barcode_captured);
@@ -102,6 +103,7 @@ public class QRActivity extends AppCompatActivity {
                 url += "Lat=" + MapsActivity.myPos.latitude + '&'; //TO DO: More accurate GPS Position
                 url += "Long=" + MapsActivity.myPos.longitude + '&';
             }
+            url += "ScanType=" + qrResult.substring(0,1) + '&';
             url += "SensorID=" + getSensorID() + '&';
             if (android.os.Build.VERSION.SDK_INT < 26)
                 url += "PhoneSerial=" + Build.SERIAL;
@@ -130,6 +132,8 @@ public class QRActivity extends AppCompatActivity {
                                 // ("prereq") in order to qualify for ten additional points for that
                                 // scan.
                                 String prereq = "";
+                                String scanType = "";
+                                String currentScan = "";
 
                                 try{
                                     prereq = response.getString("Prerequisite");
@@ -137,14 +141,58 @@ public class QRActivity extends AppCompatActivity {
                                     Log.e("No Prerequisite field", str);
                                 }
 
+                                try{
+                                    scanType = response.getString("ScanType");
+                                }catch (JSONException exception){
+                                    Log.e("No scan type field", str);
+                                }
+
+                                try{
+                                    currentScan = response.getString("StopID");
+                                }catch (JSONException exception){
+                                    Log.e("No StopID field", str);
+                                }
+
                                 if (!prereq.isEmpty()){ //if there is a prerequisite, require it.
                                     if(wasPuzzleCompleted(prereq)){
-                                        incrementUserQRCodeScore(15);
-                                        mResultTextView.setText("Successfully updated Google Sheet. You got extra points!" + "\nYou have used your bonus.");
+                                        incrementUserQRCodeScore(20);
+                                        mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
                                         putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
                                         //extra points again.
 
                                         //ten points for Gryffindor! (also adds ten for being P class code)
+                                    }
+                                    else {
+                                        mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have already used your bonus.");
+                                    }
+                                }
+                                else {
+                                    String lastScan = getLastScan();
+                                    int pointsToAdd = 0;
+                                    if (currentScan.equals(lastScan) == false) {
+                                        switch (scanType) {
+                                            case "T":
+                                                pointsToAdd = 4;
+                                                Log.d("QR type", "T");
+                                                break;
+                                            case "D":
+                                                pointsToAdd = 12;
+                                                Log.d("QR type", "D");
+                                                break;
+                                            case "P":
+                                                pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
+                                                Log.d("QR type", "P");
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                    setLastScan(currentScan);
+                                    try {
+                                        incrementUserQRCodeScore(pointsToAdd);
+                                    }
+                                    catch (Exception e) {
+                                        mResultTextView.setText("Couldn't add any QR points");
                                     }
                                 }
                             }
@@ -159,7 +207,7 @@ public class QRActivity extends AppCompatActivity {
                         }
                     });
             queue.add(jsonObjectRequest);
-            char resultType = qrResult.charAt(0); //get first letter
+            /*char resultType = qrResult.charAt(0); //get first letter
             int pointsToAdd = 0;
             switch(resultType) {
                 case 'T':
@@ -171,20 +219,18 @@ public class QRActivity extends AppCompatActivity {
                     Log.d("QR type", "D");
                     break;
                 case 'P':
-                    pointsToAdd = 5;
+                    pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
                     Log.d("QR type", "P");
                     break;
                 default:
                     break;
             }
             try {
-
                 incrementUserQRCodeScore(pointsToAdd);
-
             }
             catch (Exception e) {
                 mResultTextView.setText("Couldn't add any QR points");
-            }
+            }*/
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -295,9 +341,23 @@ public class QRActivity extends AppCompatActivity {
         putBoolean(puzzleID, true);
     }
 
+    private static String getLastScan() {
+        return userData.getString("lastScan","none");
+    }
+
+    private void setLastScan(String lastScan) {
+        putString("lastScan", lastScan);
+    }
+
     private void putBoolean(String key, Boolean value){
         SharedPreferences.Editor editor = userData.edit();
         editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    private void putString(String key, String value){
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putString(key, value);
         editor.apply();
     }
 

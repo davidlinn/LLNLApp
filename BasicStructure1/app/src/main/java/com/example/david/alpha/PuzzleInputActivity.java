@@ -169,7 +169,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                         try {
                             result = response.getString("result").equals("success");
                             correctness = response.getString(("correct?"));
-                            alreadyCompleted = response.getString(("alreadyCompleted?")) == "true";
+                            alreadyCompleted = response.getString(("alreadyCompleted?")).equals("true");
                         }
                         catch (JSONException exception) {
                             AnswerDisplay.setText(correctness);
