@@ -3,10 +3,12 @@ package com.example.david.alpha;
 
 public enum GlobalParams {;
 
+
     public static final long ACTIVE_CUTOFF = 5000; // The time after which the player state goes from active to inactive (50sec). Time in milliseconds.
     public static final long POINT_TIME = 15000; // The time in millis after which an active player gains a point (15sec).
     public static final long MILLIS_TO_MINUTES = 1000; // Converts ACTIVE_CUTOFF from milliseconds to minutes.
 
+    public static final int STEPS_PER_POINT = 15;
     public static final int ACC_SAMPLE_SIZE = 50;
 
     public static final double ACC_THRESHOLD = .9;

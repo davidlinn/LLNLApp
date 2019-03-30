@@ -13,12 +13,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Location;
-import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,14 +25,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.Set;
 
 /*
@@ -61,142 +54,78 @@ import java.util.Set;
  */
 public class ActiveHoursActivity extends AppCompatActivity implements SensorEventListener {
 
-    private SensorManager sensorMan;
-    private Sensor accelerometer;
-
-    private float[] mGravity;
-    private double mAccel;
-    private double mAccelCurrent;
-    private double mAccelLast;
-
-    private static LatLng myPos;
-    private static boolean walking;
     private static boolean sensorRegistered;
-    private static boolean atSpeed;
     private static String sensorID;
-    /*
-    //NOTE: I have removed these static variables, instead directly accessing or modifying values
-    //in userData with incrementActiveHoursScore(), getUserActiveHoursScore(), getUserTotalScore(), and
-    //getUserQRCodeScore(). -Tim, 3/7/19
+    private static int counterSteps; //latest value of the cumulative step sensor
+    private static int newSteps;  //steps since last point update
+    private static boolean active = false;
 
-    private static int userActiveHoursScore;
-    public static int userQRCodeScore;
-    public static int userTotalScore;
-    */
-    public static boolean active = false;
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    private static long startRestTime;
-    private static long elapsedRestTime;
-    private static long startActiveTime;
-    private static long elapsedActiveTime;
+        // set the XML file for this Activity
+        setContentView(R.layout.activity_scoring);
 
-    public static SharedPreferences userData;
-    public String sharedPrefFile = "com.example.david.alpha";
+        // Register the step counter sensor
+        final SensorManager sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor mStepCounter;
+
+        if (sensorMan.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
+            // Success! There's a step counter
+            mStepCounter = sensorMan.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            sensorMan.registerListener(this, mStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
+
+        } else {
+            // Failure! No step counter
+            Log.d("Step_counter", "No Step Counter available.");
+
+        }
+
+        // Verify that a bluetooth device has been paired
+        checkAttached();
+
+        // Update all UI elements
+        setDisplay();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        setDisplay();
+
+        pushPointsToServer();
+    }
 
     public void onAccuracyChanged(Sensor sensor, int num) {
         Log.d("accelerometer ", "accuracy changed");
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
-
-        setContentView(R.layout.activity_scoring);
-
-        /*
-        userTotalScore = userData.getInt(GlobalParams.TOTAL_SCORE_KEY,userTotalScore); //TODO: FIGURE OUT DEF VALUE
-        userActiveHoursScore = userData.getInt(GlobalParams.ACTIVEHOURS_SCORE_KEY, userActiveHoursScore);
-        userQRCodeScore = userData.getInt(GlobalParams.QRCODE_SCORE_KEY,userActiveHoursScore); //user QR code score?
-        */
-
-        sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mAccel = 0.00f;
-        mAccelCurrent = SensorManager.GRAVITY_EARTH;
-        mAccelLast = SensorManager.GRAVITY_EARTH;
-
-        IntentFilter disconnectFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        IntentFilter connectFilter = new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED);
-        this.registerReceiver(BTReceiver,disconnectFilter);
-        this.registerReceiver(BTReceiver,connectFilter);
-
-        sensorMan.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        checkAttached();
-
-        String totalScoreString = Integer.toString(getUserTotalScore());
-        TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
-        totalScoreDisplay.setBackgroundColor(Color.RED);
-        totalScoreDisplay.setText(totalScoreString);
-
-        String QRScoreString = Integer.toString(getUserQRCodeScore());
-        TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
-        activeDisplay.setBackgroundColor(Color.LTGRAY);
-        activeDisplay.setText(QRScoreString);
-
-        String activeHoursScoreString = Integer.toString(getUserActiveHoursScore());
-        TextView QRDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
-        QRDisplay.setBackgroundColor(Color.LTGRAY);
-        QRDisplay.setText(activeHoursScoreString);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        TextView activeDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
-
-        String QRScoreString = Integer.toString(getUserQRCodeScore());
-        Log.d("QRCodeScore",QRScoreString);
-        activeDisplay.setText(QRScoreString);
-        pushPointsToServer();
-    }
-
-    private int hitCount = 0;
-    private double hitSum = 0;
-    private double hitResult = 0;
-
-    private int SAMPLE_SIZE = GlobalParams.ACC_SAMPLE_SIZE;
-    private double THRESHOLD = GlobalParams.ACC_THRESHOLD;
-
-
-    @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            mGravity = event.values.clone();
-            double x = mGravity[0];
-            double y = mGravity[1];
-            double z = mGravity[2];
+        if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
 
-            //Log.d("acceleration", "x = " + Double.toString(x) + ", " + "y = " + Double.toString(y) + ", " + "z = " + Double.toString(x) + ", ");
-            mAccelLast = mAccelCurrent;
-            mAccelCurrent = (float) Math.sqrt(x * x + y * y + z * z); // is there a more efficient way to norm?
-            double delta = mAccelCurrent - mAccelLast;
-            mAccel = mAccel * 0.9f + delta;
+            //Determine number of new steps
+            //the step counter gives the total number of steps
+            int newCounterSteps = (int) event.values[0];
+            newSteps += newCounterSteps - counterSteps;
 
-            if (hitCount <= SAMPLE_SIZE) {
-                hitCount++;
-                hitSum += Math.abs(mAccel);
-            } else {
-                myPos = MapsActivity.myPos;
-                hitResult = hitSum / SAMPLE_SIZE;
-
-                Log.d("Sensor", String.valueOf(hitResult));
-                if (hitResult > THRESHOLD) {
-                    initiateActivity();
-                    walking = true;
-                    Log.d("Accelerometer: ", "Walking");
-                } else {
-                    initiateRest();
-                    walking = false;
-                    Log.d("Accelerometer: ", "Not Walking");
-                }
-
-                //Log.d("UserScore", Integer.toString(userTotalScore));
-                hitCount = 0;
-                hitSum = 0;
-                hitResult = 0;
+            // if a minimum number of new steps has been reached, assign a new point
+            //
+            int stp = GlobalParams.STEPS_PER_POINT;
+            if (newSteps > stp){
+                int pointsToAssign = newSteps / stp;
+                UserDataUtils.incrementUserActiveHoursScore( pointsToAssign );
+                Log.d("ActiveHoursPoints", "active hours points updated");
+                newSteps %= stp;
             }
+
+            UserDataUtils.incrementUserActiveHoursScore(newSteps);
+
+            Log.e("Steps", "detected: " + newSteps );
+            active = true;
+            setDisplay();
         }
     }
 
@@ -214,155 +143,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 BluetoothSocket tmp;
 
                 sensorID = bluetoothDevice;
-                SharedPreferences.Editor prefEditor = userData.edit();
-                prefEditor.putString(GlobalParams.SENSOR_KEY, sensorID);
-                prefEditor.apply();
 
-                try {
-                    tmp = bt.createRfcommSocketToServiceRecord(bt.getUuids()[0].getUuid());
-                    tmp.connect();
-                    Log.d("BluetoothSocket","Established");
-                    Log.d("bluetoothdevice",bluetoothDevice);
-                    if (tmp.isConnected()) {
-                        Log.d("BluetoothSocket","connected");
-                        sensorRegistered = true;
-                        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-                        sensorReg.setText("Sensor Registered: true");
-                        sensorReg.setBackgroundColor(Color.LTGRAY);
-                    }
-                    else {
-                        Log.d("BluetoothSocket","not connected");
-                        sensorRegistered = true; //TODO: RETURN TO FALSE
-                        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-                        sensorReg.setText("Sensor Registered: false");
-                        sensorReg.setBackgroundColor(Color.RED);
-                    }
-                }
-                catch(java.io.IOException e) {
-                    e.getStackTrace();
-                    Log.d("BluetoothSocket","could not be established");
-                    sensorRegistered = true; //TODO: RETURN TO FALSE
-                    TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-                    sensorReg.setText("Sensor Registered: false");
-                    sensorReg.setBackgroundColor(Color.RED);
+                if ( !sensorID.equals( UserDataUtils.getSensorID() ) ){
+                    UserDataUtils.setSensorID(sensorID);
                 }
 
-
+                sensorRegistered = true;
+            }else{
+                sensorRegistered = false;
             }
         }
-        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-        sensorReg.setText("Sensor Registered: true");
-        sensorReg.setBackgroundColor(Color.LTGRAY);
-        sensorRegistered = true; //TODO: RETURN TO FALSE
-        //TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-        //sensorReg.setText("Sensor Registered: false");
-        //sensorReg.setBackgroundColor(Color.RED);
 
-    }
-
-    private final BroadcastReceiver BTReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d("Bluetooth", "connection received");
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
-            String bluetoothDevice = device.getName();
-            int startingIndex = bluetoothDevice.indexOf("SGM");
-
-            if (startingIndex != -1) {
-                Log.d("Sensor","Sensor paired");
-                sensorID = bluetoothDevice;
-                SharedPreferences.Editor prefEditor = userData.edit();
-                prefEditor.putString(GlobalParams.SENSOR_KEY, sensorID);
-                prefEditor.apply();
-
-                if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                    sensorRegistered = true;
-                    TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-                    sensorReg.setText("Sensor Registered: true");
-                    sensorReg.setBackgroundColor(Color.LTGRAY);
-                    Toast.makeText(getApplicationContext(), "BT Connected", Toast.LENGTH_SHORT).show();
-                }
-
-                else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                    sensorRegistered = true; //TODO: RETURN TO FALSE
-                    TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-                    sensorReg.setText("Sensor Registered: false");
-                    sensorReg.setBackgroundColor(Color.RED);
-                    Toast.makeText(getApplicationContext(), "BT Disconnected", Toast.LENGTH_SHORT).show();
-                }
-            }
-            TextView sensorReg = findViewById(R.id.score_sensorRegistered); //TODO: RETURN TO FALSE
-            sensorReg.setText("Sensor Registered: true");
-            sensorReg.setBackgroundColor(Color.LTGRAY);
-
-        }
-    };
-
-    public void checkAtSpeed() {
-        if (mAccelCurrent >= GlobalParams.ACC_CUTOFF) { //has no correlation to actual speed
-            atSpeed = false;
-            Log.d("speed","too fast");
-        }
-        else {
-            atSpeed = true;
-        }
-    }
-
-
-    public void initiateRest() {
-        if (!walking) {
-            elapsedRestTime = SystemClock.elapsedRealtime() - startRestTime;
-            elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
-            //assignPoint();
-            Log.d("active time", Double.toString(elapsedActiveTime));
-            if (elapsedRestTime >= GlobalParams.ACTIVE_CUTOFF) {
-                //userScore += GlobalParams.ACTIVE_CUTOFF/GlobalParams.MILLIS_TO_MINUTES; //TODO: FIX REST SCORE ISSUE
-                active = false;
-                TextView scoreDisp = findViewById(R.id.score_totalScoreDisplay);
-                scoreDisp.setBackgroundColor(Color.RED);
-                Log.d("scoring", "set inactive");
-            }
-        } else {
-            startRestTime = SystemClock.elapsedRealtime();
-        }
-    }
-
-    public void initiateActivity() {
-        if (walking) {
-            elapsedActiveTime = SystemClock.elapsedRealtime() - startActiveTime;
-            Log.d("active time", Double.toString(elapsedActiveTime));
-            assignPoint();
-        } else {
-            active = true;
-            //Log.d("scoring", "set Active");
-            TextView scoreDisp = findViewById(R.id.score_totalScoreDisplay);
-            scoreDisp.setBackgroundColor(Color.GREEN);
-            startActiveTime = SystemClock.elapsedRealtime();
-        }
-    }
-
-    public void assignPoint() {
-        if (elapsedActiveTime >= GlobalParams.POINT_TIME) {
-            //checkAttached();
-            checkAtSpeed();
-            int point = (sensorRegistered ? 1 : 0) * (active ? 1 : 0) * (atSpeed ? 1 : 0);
-
-            incrementUserActiveHoursScore();
-
-
-            String scoreDisplay = Integer.toString(getUserTotalScore());
-            TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
-            totalScoreDisplay.setText(scoreDisplay);
-
-            scoreDisplay = Integer.toString(getUserActiveHoursScore());
-            TextView activeHoursScoreDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
-            activeHoursScoreDisplay.setText(scoreDisplay);
-
-            elapsedActiveTime = 0;
-            startActiveTime = SystemClock.elapsedRealtime();
-        }
     }
 
     //Attempts to push current userActiveHoursScore and userQRCodeScore to UserDatabase Google Sheet
@@ -378,8 +169,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         url += "Sheet=" + "Event2" + '&';
         url += "RequestType=DataPush&";
         url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
-        url += "ActiveMinPoints=" + getUserActiveHoursScore() + '&';
-        url += "QRCodePoints=" + getUserQRCodeScore();
+        url += "ActiveMinPoints=" + UserDataUtils.getUserActiveHoursScore() + '&';
+        url += "QRCodePoints=" + UserDataUtils.getUserQRCodeScore();
         url = ensureValidURL(url);
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -425,6 +216,50 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         queue.add(jsonObjectRequest);
     }
 
+    public void setDisplay() {
+        updateActiveHoursDisplay();
+        updateQRDisplay();
+        updateRegisteredDisplay();
+        updateTotalScoreDisplay();
+    }
+
+    public void updateActiveHoursDisplay(){
+        //set QRDisplay to display the Active Hours score
+        String activeHoursScoreString = Integer.toString(UserDataUtils.getUserActiveHoursScore());
+        TextView activeDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
+        activeDisplay.setBackgroundColor(Color.LTGRAY);
+        activeDisplay.setText(activeHoursScoreString);
+    }
+
+    public void updateTotalScoreDisplay(){
+        //set totalScoreDisplay to display total score
+        String totalScoreString = Integer.toString(UserDataUtils.getUserTotalScore());
+        TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
+        totalScoreDisplay.setBackgroundColor(Color.RED);
+        totalScoreDisplay.setText(totalScoreString);
+    }
+
+    public void updateQRDisplay(){
+        //set activeDisplay to display whether the user is active
+        String QRScoreString = Integer.toString(UserDataUtils.getUserQRCodeScore());
+        TextView QRDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
+        QRDisplay.setBackgroundColor(Color.LTGRAY);
+        QRDisplay.setText(QRScoreString);
+    }
+
+    public void updateRegisteredDisplay(){
+        //set sensorReg TextView according to sensorRegistered
+        TextView sensorReg = findViewById(R.id.score_sensorRegistered);
+        Log.d("Sensor_registered", Boolean.toString(sensorRegistered) );
+        if(sensorRegistered){
+            sensorReg.setText("Sensor Registered: true");
+            sensorReg.setBackgroundColor(Color.LTGRAY);
+        }else{
+            sensorReg.setText("Sensor Registered: false");
+            sensorReg.setBackgroundColor(Color.RED);
+        }
+    }
+
     public static String ensureValidURL(String url) {
         //Turn all spaces in String into '+' characters
         String s = "";
@@ -436,89 +271,4 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         }
         return s;
     }
-
-
-    //SETTERS AND GETTERS FOR USERACTIVEHOURSSCORE, USERQRCODESCORE, AND USERTOTALSCORE
-
-    //increases ActiveHoursScore and UserTotalScore by 1 in userData
-    private void incrementUserActiveHoursScore(){
-        incrementUserActiveHoursScore(1);
-    }
-
-    //increases ActiveHoursScore and UserTotalScore by amount in userData
-    private void incrementUserActiveHoursScore(int amount){
-
-        int currentActiveHoursScore = getUserActiveHoursScore();
-
-        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
-        putInt(key, currentActiveHoursScore + amount);
-
-        incrementUserTotalScore(amount);
-
-        Log.d("scoring", "Active Hours point(s) incremented");
-    }
-
-    //increases userQRCodeScore and UserTotalScore by 1 in userData
-    private void incrementUserQRCodeScore(){
-        incrementUserQRCodeScore(1);
-    }
-
-    //increases ActiveHoursScore and UserTotalScore by amount in userData
-    private void incrementUserQRCodeScore(int amount){
-
-        int currentUserQRCodeScore = getUserQRCodeScore();
-
-        String key = GlobalParams.QRCODE_SCORE_KEY;
-        putInt(key, currentUserQRCodeScore + amount);
-
-        incrementUserTotalScore(amount);
-
-        Log.d("scoring", "QR Code point(s) incremented");
-    }
-
-    private void incrementUserTotalScore(){
-        incrementUserTotalScore(1);
-    }
-
-    //increase the userTotalScore in userData by amount. Note: this should only be called by
-    //incrementActiveHoursScore in ActiveHoursActivity to avoid redundant point assignment.
-    private void incrementUserTotalScore(int amount){
-
-        int currentUserTotalScore = getUserTotalScore();
-
-        String key = GlobalParams.TOTAL_SCORE_KEY;
-        putInt(key, currentUserTotalScore + amount);
-
-        Log.d("scoring", "Active Hours point(s) incremented");
-    }
-
-    private int getUserActiveHoursScore(){
-        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private int getUserTotalScore(){
-        String key = GlobalParams.TOTAL_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private int getUserQRCodeScore(){
-        String key = GlobalParams.QRCODE_SCORE_KEY;
-        return getInt(key);
-    }
-
-    //puts an int in userData
-    //https://stackoverflow.com/questions/2614719/how-do-i-get-the-sharedpreferences-from-a-preferenceactivity-in-android
-    private static void putInt(String key, int value) {
-        SharedPreferences.Editor editor = userData.edit();
-        editor.putInt(key, value);
-        editor.apply();
-
-    }
-
-    //gets an int from userData
-    private static int getInt(String key) { ;
-        return userData.getInt(key,  0);
-    }
-
 }
