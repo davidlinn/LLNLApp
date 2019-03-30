@@ -513,6 +513,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         SharedPreferences.Editor editor = userData.edit();
         editor.putInt(key, value);
         editor.apply();
+
     }
 
     //gets an int from userData
