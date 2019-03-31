@@ -77,8 +77,9 @@ public class QRActivity extends AppCompatActivity {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     Point[] p = barcode.cornerPoints;
                     mResultTextView.setText(barcode.displayValue);
-                    if (barcode.displayValue.length() == 6) //QR codes should return String of len 6
+                    if (barcode.displayValue.length() == 6) {//QR codes should return String of len 6
                         groundTruth(barcode.displayValue);
+                    }
                     else
                         mResultTextView.setText(barcode.displayValue+", Invalid QR code");
                 } else mResultTextView.setText(R.string.no_barcode_captured);
@@ -102,10 +103,13 @@ public class QRActivity extends AppCompatActivity {
                 url += "Lat=" + MapsActivity.myPos.latitude + '&'; //TO DO: More accurate GPS Position
                 url += "Long=" + MapsActivity.myPos.longitude + '&';
             }
+            url += "ScanType=" + qrResult.substring(0,1) + '&';
             url += "SensorID=" + getSensorID() + '&';
             if (android.os.Build.VERSION.SDK_INT < 26)
                 url += "PhoneSerial=" + Build.SERIAL;
             url = ensureValidURL(url);
+
+
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
@@ -120,8 +124,78 @@ public class QRActivity extends AppCompatActivity {
                             catch (JSONException exception) {
                                 mResultTextView.setText("JSON String returned by server has no field 'result'.");
                             }
-                            if (result)
+                            if (result) {
                                 mResultTextView.setText("Successfully updated Google Sheet");
+
+                                //Check the JSON response for a "Prerequisite" field. If there is
+                                //a prerequisite, that means the user must have completed a puzzle
+                                // ("prereq") in order to qualify for ten additional points for that
+                                // scan.
+                                String prereq = "";
+                                String scanType = "";
+                                String currentScan = "";
+
+                                try{
+                                    prereq = response.getString("Prerequisite");
+                                }catch (JSONException exception){
+                                    Log.e("No Prerequisite field", str);
+                                }
+
+                                try{
+                                    scanType = response.getString("ScanType");
+                                }catch (JSONException exception){
+                                    Log.e("No scan type field", str);
+                                }
+
+                                try{
+                                    currentScan = response.getString("StopID");
+                                }catch (JSONException exception){
+                                    Log.e("No StopID field", str);
+                                }
+
+                                if (!prereq.isEmpty()){ //if there is a prerequisite, require it.
+                                    if(wasPuzzleCompleted(prereq)){
+                                        incrementUserQRCodeScore(20);
+                                        mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
+                                        putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
+                                        //extra points again.
+
+                                        //ten points for Gryffindor! (also adds ten for being P class code)
+                                    }
+                                    else {
+                                        mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have already used your bonus.");
+                                    }
+                                }
+                                else {
+                                    String lastScan = getLastScan();
+                                    int pointsToAdd = 0;
+                                    if (currentScan.equals(lastScan) == false) {
+                                        switch (scanType) {
+                                            case "T":
+                                                pointsToAdd = 4;
+                                                Log.d("QR type", "T");
+                                                break;
+                                            case "D":
+                                                pointsToAdd = 12;
+                                                Log.d("QR type", "D");
+                                                break;
+                                            case "P":
+                                                pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
+                                                Log.d("QR type", "P");
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                    setLastScan(currentScan);
+                                    try {
+                                        incrementUserQRCodeScore(pointsToAdd);
+                                    }
+                                    catch (Exception e) {
+                                        mResultTextView.setText("Couldn't add any QR points");
+                                    }
+                                }
+                            }
                             else
                                 mResultTextView.setText("Connected to server but failed to update Google Sheet");
                         }
@@ -133,7 +207,7 @@ public class QRActivity extends AppCompatActivity {
                         }
                     });
             queue.add(jsonObjectRequest);
-            char resultType = qrResult.charAt(0); //get first letter
+            /*char resultType = qrResult.charAt(0); //get first letter
             int pointsToAdd = 0;
             switch(resultType) {
                 case 'T':
@@ -145,20 +219,18 @@ public class QRActivity extends AppCompatActivity {
                     Log.d("QR type", "D");
                     break;
                 case 'P':
-                    pointsToAdd = 60;
+                    pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
                     Log.d("QR type", "P");
                     break;
                 default:
                     break;
             }
             try {
-
                 incrementUserQRCodeScore(pointsToAdd);
-
             }
             catch (Exception e) {
                 mResultTextView.setText("Couldn't add any QR points");
-            }
+            }*/
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -259,6 +331,34 @@ public class QRActivity extends AppCompatActivity {
     private int getUserQRCodeScore(){
         String key = GlobalParams.QRCODE_SCORE_KEY;
         return getInt(key);
+    }
+
+    private Boolean wasPuzzleCompleted(String puzzleID){
+        return userData.getBoolean(puzzleID, false);
+    }
+
+    private void setPuzzleCompleted(String puzzleID){
+        putBoolean(puzzleID, true);
+    }
+
+    private static String getLastScan() {
+        return userData.getString("lastScan","none");
+    }
+
+    private void setLastScan(String lastScan) {
+        putString("lastScan", lastScan);
+    }
+
+    private void putBoolean(String key, Boolean value){
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
+    }
+
+    private void putString(String key, String value){
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putString(key, value);
+        editor.apply();
     }
 
     //puts an int in userData
