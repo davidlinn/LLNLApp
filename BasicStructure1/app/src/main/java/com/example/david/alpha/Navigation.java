@@ -75,18 +75,10 @@ public class Navigation extends AppCompatActivity {
         // Install the application crash handler
         ApplicationCrashHandler.installHandler();
 
-        // Record the start-up time
-        //long currentTime = System.currentTimeMillis();
-        //long elapsedTime = currentTime - ApplicationWrapper.startTime;
-        //if (elapsedTime > 3000) {
-          //  Log.e(TAG, "LONG STARTUP TIME");
-        //}
-        //Log.d(TAG, String.format("Elapsed Time = %d ms", elapsedTime));
-
-
         Log.d("Startup","Starting up navigation");
-        //TODO: CHECK REMOTE UPDATE FUNCTIONALITY
 
+
+        // Do remote update
         try {
             Intent mServiceIntent = new Intent(this, RemoteUpdateService.class);
             mServiceIntent.setData(Uri.parse(GlobalParams.REMOTE_UPDATE_HOSTURL));
@@ -101,7 +93,9 @@ public class Navigation extends AppCompatActivity {
             Log.d("update", "Update failed");
         }
 
+        //Register new service for ActiveHours
 
+        // Set layout
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

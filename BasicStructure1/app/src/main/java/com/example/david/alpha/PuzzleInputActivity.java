@@ -23,9 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-import static com.example.david.alpha.ActiveHoursActivity.userData;
-
 /*
     Puzzle input activity:  Allows user to input puzzle answers.  Initiates request to google sheets
     database containing puzzle answers.  Compares input to correct answer and resturns if the user
@@ -184,6 +181,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                                     setPuzzleCompleted(PuzzleID);
                                     incrementUserQRCodeScore(pointsToAdd);
                                     AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!" + "\nYou have unlocked the bonus QR code.");
+
                                 }
 
                             }
@@ -216,102 +214,6 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                 s = s+c;
         }
         return s;
-    }
-
-    //SETTERS AND GETTERS FOR USERACTIVEHOURSSCORE, USERQRCODESCORE, AND USERTOTALSCORE
-
-    //increases ActiveHoursScore and UserTotalScore by 1 in userData
-    private void incrementUserActiveHoursScore(){
-        incrementUserActiveHoursScore(1);
-    }
-
-    //increases ActiveHoursScore and UserTotalScore by amount in userData
-    private void incrementUserActiveHoursScore(int amount){
-
-        int currentActiveHoursScore = getUserActiveHoursScore();
-
-        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
-        putInt(key, currentActiveHoursScore + amount);
-
-        incrementUserTotalScore(amount);
-
-        Log.d("scoring", "Active Hours point(s) incremented");
-    }
-
-    //increases userQRCodeScore and UserTotalScore by 1 in userData
-    private void incrementUserQRCodeScore(){
-        incrementUserQRCodeScore(1);
-    }
-
-    //increases ActiveHoursScore and UserTotalScore by amount in userData
-    private void incrementUserQRCodeScore(int amount){
-
-        int currentUserQRCodeScore = getUserQRCodeScore();
-
-        String key = GlobalParams.QRCODE_SCORE_KEY;
-        putInt(key, currentUserQRCodeScore + amount);
-
-        incrementUserTotalScore(amount);
-
-        Log.d("scoring", "QR Code point(s) incremented");
-    }
-
-    private void incrementUserTotalScore(){
-        incrementUserTotalScore(1);
-    }
-
-    //increase the userTotalScore in userData by amount. Note: this should only be called by
-    //incrementActiveHoursScore in ActiveHoursActivity to avoid redundant point assignment.
-    private void incrementUserTotalScore(int amount){
-
-        int currentUserTotalScore = getUserTotalScore();
-
-        String key = GlobalParams.TOTAL_SCORE_KEY;
-        putInt(key, currentUserTotalScore + amount);
-
-        Log.d("scoring", "Active Hours point(s) incremented");
-    }
-
-    private int getUserActiveHoursScore(){
-        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private int getUserTotalScore(){
-        String key = GlobalParams.TOTAL_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private int getUserQRCodeScore(){
-        String key = GlobalParams.QRCODE_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private Boolean wasPuzzleCompleted(String puzzleID){
-        return userData.getBoolean(puzzleID, false);
-    }
-
-    private void setPuzzleCompleted(String puzzleID){
-        putBoolean(puzzleID, true);
-    }
-
-    private void putBoolean(String key, Boolean value){
-        SharedPreferences.Editor editor = userData.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    //puts an int in userData
-    //https://stackoverflow.com/questions/2614719/how-do-i-get-the-sharedpreferences-from-a-preferenceactivity-in-android
-    private static void putInt(String key, int value) {
-        SharedPreferences.Editor editor = userData.edit();
-        editor.putInt(key, value);
-        editor.apply();
-    }
-
-    //gets an int from userData
-    private static int getInt(String key) {
-        return userData.getInt(key,  -1);
     }
 
 }

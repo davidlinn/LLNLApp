@@ -33,18 +33,28 @@ public class LeaderboardActivity extends AppCompatActivity {
 
     public void leaderboardRequest() {
         //Populate the server info view depending on request result
-        final TextView[] name = {(TextView) findViewById(R.id.name0),(TextView) findViewById(R.id.name1),
-                (TextView) findViewById(R.id.name2),(TextView) findViewById(R.id.name3),(TextView) findViewById(R.id.name4)};
-        final TextView[] score = {(TextView) findViewById(R.id.score0),(TextView) findViewById(R.id.score1),
-                (TextView) findViewById(R.id.score2),(TextView) findViewById(R.id.score3),(TextView) findViewById(R.id.score4)};
+        final TextView[] name = {(TextView) findViewById(R.id.name0),
+                (TextView) findViewById(R.id.name1),
+                (TextView) findViewById(R.id.name2),
+                (TextView) findViewById(R.id.name3),
+                (TextView) findViewById(R.id.name4)};
+
+        final TextView[] score = {(TextView) findViewById(R.id.score0),
+                (TextView) findViewById(R.id.score1),
+                (TextView) findViewById(R.id.score2),
+                (TextView) findViewById(R.id.score3),
+                (TextView) findViewById(R.id.score4)};
+
         //Create queue that accepts requests
         RequestQueue queue = Volley.newRequestQueue(this);
+
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.user_database_url);
         url += '?';
         url += "Sheet=" + "Event2" + '&';
         url += "RequestType=Leaderboard";
         url = QRActivity.ensureValidURL(url);
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -76,16 +86,19 @@ public class LeaderboardActivity extends AppCompatActivity {
                                 }
                             }
                             catch (JSONException e) {
-                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR_A");
+                                name[0].setText("This should never appear: Email us if you see " +
+                                        "this USERDATABASEERROR_A");
                             }
                         }
                         else {
                             try {
-                                name[0].setText("Connected to server but failed to push local score: " +
+                                name[0].setText("Connected to server but failed to push local " +
+                                        "score: " +
                                         response.getString("error"));
                             }
                             catch (JSONException e) {
-                                name[0].setText("This should never appear: Email us if you see this USERDATABASEERROR_B");
+                                name[0].setText("This should never appear: Email us if you see" +
+                                        " this USERDATABASEERROR_B");
                             }
                         }
                     }
