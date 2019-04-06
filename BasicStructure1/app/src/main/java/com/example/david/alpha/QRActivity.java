@@ -103,6 +103,7 @@ public class QRActivity extends AppCompatActivity {
                 url += "Lat=" + MapsActivity.myPos.latitude + '&'; //TO DO: More accurate GPS Position
                 url += "Long=" + MapsActivity.myPos.longitude + '&';
             }
+            url += "RequestType=" + "QRScan" + '&';
             url += "ScanType=" + qrResult.substring(0,1) + '&';
             url += "SensorID=" + getSensorID() + '&';
             if (android.os.Build.VERSION.SDK_INT < 26)
@@ -207,30 +208,6 @@ public class QRActivity extends AppCompatActivity {
                         }
                     });
             queue.add(jsonObjectRequest);
-            /*char resultType = qrResult.charAt(0); //get first letter
-            int pointsToAdd = 0;
-            switch(resultType) {
-                case 'T':
-                    pointsToAdd = 4;
-                    Log.d("QR type", "T");
-                    break;
-                case 'D':
-                    pointsToAdd = 12;
-                    Log.d("QR type", "D");
-                    break;
-                case 'P':
-                    pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
-                    Log.d("QR type", "P");
-                    break;
-                default:
-                    break;
-            }
-            try {
-                incrementUserQRCodeScore(pointsToAdd);
-            }
-            catch (Exception e) {
-                mResultTextView.setText("Couldn't add any QR points");
-            }*/
         }
         catch (Exception e) {
             throw new RuntimeException(e);

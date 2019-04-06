@@ -14,6 +14,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -28,6 +34,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 /*
@@ -35,6 +45,7 @@ import java.util.List;
     Displays locations given by
     Josh Morgan, David Linn - jmorgan@hmc.edu, dlinn@hmc.edu - 12/7/18
  */
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -45,10 +56,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient mFusedLocationClient;
     private int locationRequests = 0;
     public static LatLng myPos;
+    public static int numPuzzleStops;
+    public static String[] lats;
+    public static String[] longs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWaypoints();
+
         setContentView(R.layout.activity_maps);
 
         getSupportActionBar().setTitle("Maps Location");
@@ -58,7 +75,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
     }
-
 
     /**
      * Manipulates the map once available.
@@ -73,7 +89,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(100); // tenth-second update interval.
         mLocationRequest.setFastestInterval(10); // .01s upper limit
@@ -209,5 +224,82 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    public void getWaypoints() {
+        Log.d("getWaypoints() called","inside method");
+        //Create queue that accepts requests
+        RequestQueue queue = Volley.newRequestQueue(this);
+        //Build URL and query string from JSON object
+        String url = getApplicationContext().getString(R.string.ground_truth_script_url);
+        url += '?';
+        url += "Sheet=" + "P100" + '&'; // note: need to change sheet name each deployment
+        url += "RequestType=" + "GetWaypoints";
+        url = QRActivity.ensureValidURL(url);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        String str = response.toString();
+                        Log.d("QR JSON response",str);
+                        boolean result = false;
+                        try {
+                            result = response.getString("result").equals("success");
+                            numPuzzleStops = Integer.parseInt(response.getString("numPuzzleStops"));
+                            Log.d("numPuzzleStops", Integer.toString(numPuzzleStops));
+
+                            JSONArray arrJsonLat = response.getJSONArray("latitudes");
+                            lats = new String[arrJsonLat.length()];
+                            for(int i=0;i<arrJsonLat.length();i++)
+                            {
+                                lats[i] = arrJsonLat.getString(i);
+                                Log.d("lat", Integer.toString(i)+" "+lats[i]);
+                            }
+
+                            JSONArray arrJsonLong = response.getJSONArray("longitudes");
+                            longs = new String[arrJsonLong.length()];
+                            for(int i=0;i<arrJsonLong.length();i++)
+                            {
+                                longs[i] = arrJsonLong.getString(i);
+                                Log.d("long", Integer.toString(i)+" "+longs[i]);
+                            }
+
+                            //Place waypoints
+                            LatLng waypoint;
+                            MarkerOptions markopt;
+                            double latitude;
+                            double longitude;
+                            for (int i=0;i<lats.length;i++) {
+                                latitude = Double.parseDouble(lats[i]);
+                                longitude = Double.parseDouble(longs[i]);
+                                waypoint = new LatLng(latitude, longitude);
+                                markopt = new MarkerOptions();
+                                markopt.position(waypoint);
+                                if (i<numPuzzleStops) {
+                                    markopt.title("Puzzle#"+Integer.toString(i+1));
+                                    markopt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                                    mMap.addMarker(markopt);
+                                }
+                                else {
+                                    markopt.title("Bonus#"+Integer.toString(i-numPuzzleStops+1));
+                                    markopt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                    mMap.addMarker(markopt);
+                                }
+                            }
+                        }
+                        catch (JSONException exception) {
+                            Log.e("error: ","Json request failed");
+                        }
+                    }
+
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("error: ","Error in HTTP request");
+
+                    }
+                });
+
+        queue.add(jsonObjectRequest);
+    }
 
 }
