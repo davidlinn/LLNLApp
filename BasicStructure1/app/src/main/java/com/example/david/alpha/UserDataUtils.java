@@ -105,7 +105,7 @@ public class UserDataUtils {
         putBoolean(puzzleID, true);
     }
 
-    private static void putBoolean(String key, Boolean value){
+    public static void putBoolean(String key, Boolean value){
         SharedPreferences.Editor editor = userData.edit();
         editor.putBoolean(key, value);
         editor.apply();
@@ -136,5 +136,12 @@ public class UserDataUtils {
         editor.apply();
     }
 
+    public static String getLastScan() {
+        return userData.getString("lastScan","none");
+    }
+
+    public static void setLastScan(String lastScan) {
+        putString("lastScan", lastScan);
+    }
 
 }

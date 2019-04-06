@@ -88,7 +88,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(100); // tenth-second update interval.
         mLocationRequest.setFastestInterval(10); // .01s upper limit
