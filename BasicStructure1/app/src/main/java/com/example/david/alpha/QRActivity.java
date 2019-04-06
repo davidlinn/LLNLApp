@@ -155,10 +155,10 @@ public class QRActivity extends AppCompatActivity {
                                 }
 
                                 if (!prereq.isEmpty()){ //if there is a prerequisite, require it.
-                                    if(wasPuzzleCompleted(prereq)){
-                                        incrementUserQRCodeScore(20);
+                                    if(UserDataUtils.wasPuzzleCompleted(prereq)){
+                                        UserDataUtils.incrementUserQRCodeScore(20);
                                         mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
-                                        putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
+                                        UserDataUtils.putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
                                         //extra points again.
 
                                         //ten points for Gryffindor! (also adds ten for being P class code)
@@ -168,7 +168,7 @@ public class QRActivity extends AppCompatActivity {
                                     }
                                 }
                                 else {
-                                    String lastScan = getLastScan();
+                                    String lastScan = UserDataUtils.getLastScan();
                                     int pointsToAdd = 0;
                                     if (currentScan.equals(lastScan) == false) {
                                         switch (scanType) {
@@ -188,9 +188,9 @@ public class QRActivity extends AppCompatActivity {
                                                 break;
                                         }
                                     }
-                                    setLastScan(currentScan);
+                                    UserDataUtils.setLastScan(currentScan);
                                     try {
-                                        incrementUserQRCodeScore(pointsToAdd);
+                                        UserDataUtils.incrementUserQRCodeScore(pointsToAdd);
                                     }
                                     catch (Exception e) {
                                         mResultTextView.setText("Couldn't add any QR points");
@@ -239,116 +239,6 @@ public class QRActivity extends AppCompatActivity {
                 s = s+c;
         }
         return s;
-    }
-
-    //SETTERS AND GETTERS FOR USERACTIVEHOURSSCORE, USERQRCODESCORE, AND USERTOTALSCORE
-
-    //increases ActiveHoursScore and UserTotalScore by 1 in userData
-    private void incrementUserActiveHoursScore(){
-        incrementUserActiveHoursScore(1);
-    }
-
-    //increases ActiveHoursScore and UserTotalScore by amount in userData
-    private void incrementUserActiveHoursScore(int amount){
-
-        int currentActiveHoursScore = getUserActiveHoursScore();
-
-        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
-        putInt(key, currentActiveHoursScore + amount);
-
-        incrementUserTotalScore(amount);
-
-        Log.d("scoring", "Active Hours point(s) incremented");
-    }
-
-    //increases userQRCodeScore and UserTotalScore by 1 in userData
-    private void incrementUserQRCodeScore(){
-        incrementUserQRCodeScore(1);
-    }
-
-    //increases ActiveHoursScore and UserTotalScore by amount in userData
-    private void incrementUserQRCodeScore(int amount){
-
-        int currentUserQRCodeScore = getUserQRCodeScore();
-
-        String key = GlobalParams.QRCODE_SCORE_KEY;
-        putInt(key, currentUserQRCodeScore + amount);
-
-        incrementUserTotalScore(amount);
-
-        Log.d("scoring", "QR Code point(s) incremented");
-    }
-
-    private void incrementUserTotalScore(){
-        incrementUserTotalScore(1);
-    }
-
-    //increase the userTotalScore in userData by amount. Note: this should only be called by
-    //incrementActiveHoursScore in ActiveHoursActivity to avoid redundant point assignment.
-    private void incrementUserTotalScore(int amount){
-
-        int currentUserTotalScore = getUserTotalScore();
-
-        String key = GlobalParams.TOTAL_SCORE_KEY;
-        putInt(key, currentUserTotalScore + amount);
-
-        Log.d("scoring", "Active Hours point(s) incremented");
-    }
-
-    private int getUserActiveHoursScore(){
-        String key = GlobalParams.ACTIVEHOURS_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private int getUserTotalScore(){
-        String key = GlobalParams.TOTAL_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private int getUserQRCodeScore(){
-        String key = GlobalParams.QRCODE_SCORE_KEY;
-        return getInt(key);
-    }
-
-    private Boolean wasPuzzleCompleted(String puzzleID){
-        return userData.getBoolean(puzzleID, false);
-    }
-
-    private void setPuzzleCompleted(String puzzleID){
-        putBoolean(puzzleID, true);
-    }
-
-    private static String getLastScan() {
-        return userData.getString("lastScan","none");
-    }
-
-    private void setLastScan(String lastScan) {
-        putString("lastScan", lastScan);
-    }
-
-    private void putBoolean(String key, Boolean value){
-        SharedPreferences.Editor editor = userData.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
-    }
-
-    private void putString(String key, String value){
-        SharedPreferences.Editor editor = userData.edit();
-        editor.putString(key, value);
-        editor.apply();
-    }
-
-    //puts an int in userData
-    //https://stackoverflow.com/questions/2614719/how-do-i-get-the-sharedpreferences-from-a-preferenceactivity-in-android
-    private static void putInt(String key, int value) {
-        SharedPreferences.Editor editor = userData.edit();
-        editor.putInt(key, value);
-        editor.apply();
-    }
-
-    //gets an int from userData
-    private static int getInt(String key) { ;
-        return userData.getInt(key,  -1);
     }
 
 }
