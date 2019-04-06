@@ -1,4 +1,5 @@
 package com.example.david.alpha;
+
 import android.arch.lifecycle.LifecycleObserver;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,7 @@ import org.json.JSONObject;
     got the puzzle right.
  */
 
-public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
+public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     /*
     I removed these. -Tim, 3/7/19
     //these values are taken from the userPreferences object that is set in
@@ -57,12 +58,13 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         //read in Active Hours points from userData
 
     }
+
     public void onItemSelected(AdapterView<?> parent, View view,
                                int pos, long id) {
         // An item was selected. You can retrieve the selected item using
@@ -91,27 +93,29 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onResponse(JSONObject response) {
                         String str = response.toString();
-                        Log.e("QR JSON response",str);
+                        Log.e("QR JSON response", str);
                         boolean result = false;
                         try {
                             result = response.getString("result").equals("success");
 
                             JSONArray arrJson = response.getJSONArray("puzzleNames");
                             String[] puzzleNames = new String[arrJson.length()];
-                            for(int i=0;i<arrJson.length();i++)
-                            {
+                            for (int i = 0; i < arrJson.length(); i++) {
                                 puzzleNames[i] = arrJson.getString(i);
                             }
                             Spinner spinner = (Spinner) findViewById(R.id.puzzleSelect_spinner);
+
                             // Create an ArrayAdapter using the string array and a default spinner layout
                             ArrayAdapter<String> adapter = new ArrayAdapter<String>(PuzzleInputActivity.this, android.R.layout.simple_spinner_item, puzzleNames);
+
                             // Specify the layout to use when the list of choices appears
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
                             // Apply the adapter to the spinner
                             spinner.setAdapter(adapter);
                             spinner.setOnItemSelectedListener(PuzzleInputActivity.this); //this
-                        }
-                        catch (JSONException exception) {
+
+                        } catch (JSONException exception) {
                             AnswerDisplay.setText("Json request failed");
                             Log.e("JSON request failed.", exception.toString());
                         }
@@ -145,7 +149,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         String url = getApplicationContext().getString(R.string.answer_submission_url);
         url += '?';
         url += "Sheet=" + "Sheet1" + '&';
-        url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
+        url += "SensorID=" + QRActivity.getSensorID().substring(5, 9) + '&';
         url += "RequestType=" + "AnswerSubmission" + "&";
         url += "PuzzleID=" + PuzzleID + '&';
         url += "SubmittedAnswer=" + answer;
@@ -157,7 +161,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onResponse(JSONObject response) {
                         String str = response.toString();
-                        Log.e("QR JSON response",str);
+                        Log.e("QR JSON response", str);
 
                         boolean result = false;
 
@@ -167,19 +171,18 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                             result = response.getString("result").equals("success");
                             correctness = response.getString(("correct?"));
                             alreadyCompleted = response.getString(("alreadyCompleted?")).equals("true");
-                        }
-                        catch (JSONException exception) {
+                        } catch (JSONException exception) {
                             AnswerDisplay.setText(correctness);
                         }
                         if (result) {
                             AnswerDisplay.setText(correctness);
                             if (correctness.equals("Correct!")) {
-                                if(alreadyCompleted){
+                                if (alreadyCompleted) {
                                     AnswerDisplay.setText(correctness + "\nYou already completed this puzzle.");
-                                }else {
+                                } else {
                                     int pointsToAdd = 20;
-                                    setPuzzleCompleted(PuzzleID);
-                                    incrementUserQRCodeScore(pointsToAdd);
+                                    UserDataUtils.setPuzzleCompleted(PuzzleID);
+                                    UserDataUtils.incrementUserQRCodeScore(pointsToAdd);
                                     AnswerDisplay.setText(correctness + "\nYou got " + Integer.toString(pointsToAdd) + " points!" + "\nYou have unlocked the bonus QR code.");
 
                                 }
@@ -195,10 +198,10 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
                     }
                 });
 
-                jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
-                        MY_SOCKET_TIMEOUT_MS,
-                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(
+                MY_SOCKET_TIMEOUT_MS,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 
         queue.add(jsonObjectRequest);
 
@@ -209,9 +212,9 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         String s = "";
         for (char c : url.toCharArray()) {
             if (c == ' ')
-                s = s+'+';
+                s = s + '+';
             else
-                s = s+c;
+                s = s + c;
         }
         return s;
     }

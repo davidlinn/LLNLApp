@@ -1,11 +1,10 @@
 // Tim Player and Richard Harris
-// 29 March 2019
-// tplayer@hmc.edu
+// 30 March 2019
+// tplayer@hmc.edu rharris@hmc.edu
 // UserDataUtils.java
 // SETTERS AND GETTERS FOR USERACTIVEHOURSSCORE, USERQRCODESCORE, AND USERTOTALSCORE
 
 package com.example.david.alpha;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -96,6 +95,20 @@ public class UserDataUtils {
     public static int getUserQRCodeScore(){
         String key = GlobalParams.QRCODE_SCORE_KEY;
         return getInt(key);
+    }
+
+    public static Boolean wasPuzzleCompleted(String puzzleID){
+        return userData.getBoolean(puzzleID, false);
+    }
+
+    public static void setPuzzleCompleted(String puzzleID){
+        putBoolean(puzzleID, true);
+    }
+
+    private static void putBoolean(String key, Boolean value){
+        SharedPreferences.Editor editor = userData.edit();
+        editor.putBoolean(key, value);
+        editor.apply();
     }
 
     //puts an int in userData

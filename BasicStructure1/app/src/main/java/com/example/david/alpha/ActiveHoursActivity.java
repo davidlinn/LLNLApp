@@ -3,11 +3,7 @@ package com.example.david.alpha;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -17,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -57,7 +52,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static boolean sensorRegistered;
     private static String sensorID;
     private static int counterSteps; //latest value of the cumulative step sensor
-    private static int newSteps;  //steps since last point update
+    private static int newSteps = 0;  //steps since last point update
     private static boolean active = false;
 
     @Override
@@ -71,7 +66,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         final SensorManager sensorMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         Sensor mStepCounter;
 
-        if (sensorMan.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
+        if (sensorMan.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null) {
             // Success! There's a step counter
             mStepCounter = sensorMan.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             sensorMan.registerListener(this, mStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
@@ -93,6 +88,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void onResume() {
         super.onResume();
 
+        active = false;
         setDisplay();
 
         pushPointsToServer();
@@ -102,6 +98,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         Log.d("accelerometer ", "accuracy changed");
     }
 
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
@@ -110,27 +107,28 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             //the step counter gives the total number of steps
             int newCounterSteps = (int) event.values[0];
             newSteps += newCounterSteps - counterSteps;
+            counterSteps = newCounterSteps;
 
             // if a minimum number of new steps has been reached, assign a new point
-            //
+            // and reset the number of new steps.
             int stp = GlobalParams.STEPS_PER_POINT;
-            if (newSteps > stp){
+            if (newSteps > stp) {
+
                 int pointsToAssign = newSteps / stp;
-                UserDataUtils.incrementUserActiveHoursScore( pointsToAssign );
-                Log.d("ActiveHoursPoints", "active hours points updated");
+                UserDataUtils.incrementUserActiveHoursScore(pointsToAssign);
                 newSteps %= stp;
+
+                Log.d("ActiveHoursPoints", pointsToAssign + " active hours points assigned");
+
             }
 
-            UserDataUtils.incrementUserActiveHoursScore(newSteps);
-
-            Log.e("Steps", "detected: " + newSteps );
+            Log.d("Steps", "detected: " + newSteps);
             active = true;
             setDisplay();
         }
     }
 
-    //David Edit 11/21: Simplified logic and ensured sensors that don't start with
-    //  but contain "SGM" are included
+
     public void checkAttached() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
@@ -139,17 +137,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             String bluetoothDevice = bt.getName();
             int startingIndex = bluetoothDevice.indexOf("SGM");
             if (startingIndex != -1) {
-                Log.d("Sensor","Sensor paired");
+                Log.d("Sensor", "Sensor paired");
                 BluetoothSocket tmp;
 
                 sensorID = bluetoothDevice;
 
-                if ( !sensorID.equals( UserDataUtils.getSensorID() ) ){
+                if (!sensorID.equals(UserDataUtils.getSensorID())) {
                     UserDataUtils.setSensorID(sensorID);
                 }
 
                 sensorRegistered = true;
-            }else{
+            } else {
                 sensorRegistered = false;
             }
         }
@@ -168,7 +166,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         url += '?';
         url += "Sheet=" + "Event2" + '&';
         url += "RequestType=DataPush&";
-        url += "SensorID=" + QRActivity.getSensorID().substring(5,9) + '&';
+        url += "SensorID=" + UserDataUtils.getSensorID().substring(5, 9) + '&';
         url += "ActiveMinPoints=" + UserDataUtils.getUserActiveHoursScore() + '&';
         url += "QRCodePoints=" + UserDataUtils.getUserQRCodeScore();
         url = ensureValidURL(url);
@@ -178,29 +176,25 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                     @Override
                     public void onResponse(JSONObject response) {
                         String str = response.toString();
-                        Log.e("QR JSON response",str);
+                        Log.e("QR JSON response", str);
                         boolean result = false;
                         try {
                             result = response.getString("result").equals("success");
-                        }
-                        catch (JSONException exception) {
+                        } catch (JSONException exception) {
                             InfoDisplay.setText("JSON String returned by server has no field 'result'.");
                         }
                         if (result) {
                             try {
                                 InfoDisplay.setText("Successfully updated server, with our manual offset you have "
                                         + response.getInt("remotePoints") + " points on our servers.");
-                            }
-                            catch (JSONException e) {
+                            } catch (JSONException e) {
                                 InfoDisplay.setText("This should never appear: Email us if you see this USERDATABASEERROR");
                             }
-                        }
-                        else {
+                        } else {
                             try {
                                 InfoDisplay.setText("Connected to server but failed to push local score: " +
                                         response.getString("error"));
-                            }
-                            catch (JSONException e) {
+                            } catch (JSONException e) {
                                 InfoDisplay.setText("This should never appear: Email us if you see this USERDATABASEERROR");
                             }
                         }
@@ -223,7 +217,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         updateTotalScoreDisplay();
     }
 
-    public void updateActiveHoursDisplay(){
+    public void updateActiveHoursDisplay() {
         //set QRDisplay to display the Active Hours score
         String activeHoursScoreString = Integer.toString(UserDataUtils.getUserActiveHoursScore());
         TextView activeDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
@@ -231,15 +225,17 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         activeDisplay.setText(activeHoursScoreString);
     }
 
-    public void updateTotalScoreDisplay(){
+    public void updateTotalScoreDisplay() {
         //set totalScoreDisplay to display total score
         String totalScoreString = Integer.toString(UserDataUtils.getUserTotalScore());
         TextView totalScoreDisplay = (TextView) findViewById(R.id.score_totalScoreDisplay);
-        totalScoreDisplay.setBackgroundColor(Color.RED);
+
+        int c = active ? Color.GREEN : Color.RED;
+        totalScoreDisplay.setBackgroundColor(c);
         totalScoreDisplay.setText(totalScoreString);
     }
 
-    public void updateQRDisplay(){
+    public void updateQRDisplay() {
         //set activeDisplay to display whether the user is active
         String QRScoreString = Integer.toString(UserDataUtils.getUserQRCodeScore());
         TextView QRDisplay = (TextView) findViewById(R.id.score_QRPointsDisplay);
@@ -247,14 +243,14 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         QRDisplay.setText(QRScoreString);
     }
 
-    public void updateRegisteredDisplay(){
+    public void updateRegisteredDisplay() {
         //set sensorReg TextView according to sensorRegistered
         TextView sensorReg = findViewById(R.id.score_sensorRegistered);
-        Log.d("Sensor_registered", Boolean.toString(sensorRegistered) );
-        if(sensorRegistered){
+        Log.d("Sensor_registered", Boolean.toString(sensorRegistered));
+        if (sensorRegistered) {
             sensorReg.setText("Sensor Registered: true");
             sensorReg.setBackgroundColor(Color.LTGRAY);
-        }else{
+        } else {
             sensorReg.setText("Sensor Registered: false");
             sensorReg.setBackgroundColor(Color.RED);
         }
@@ -265,9 +261,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         String s = "";
         for (char c : url.toCharArray()) {
             if (c == ' ')
-                s = s+'+';
+                s = s + '+';
             else
-                s = s+c;
+                s = s + c;
         }
         return s;
     }
