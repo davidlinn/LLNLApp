@@ -121,7 +121,7 @@ public class UserDataUtils {
 
     //gets an int from userData
     private static int getInt(String key) {
-        return userData.getInt(key,  -1);
+        return userData.getInt(key,  0);
     }
 
     //gets a String from userData
