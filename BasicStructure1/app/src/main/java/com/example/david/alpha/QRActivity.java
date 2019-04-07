@@ -33,19 +33,19 @@ import java.util.Set;
 /*
     QR Activity:
     Scans a QR Code using classes in barcode and camera directories
-        Implementation from [link]
     Pushes ground truth to Ground Truth database, sheet specified by 4-character code (first 4 characters
-        of 6-character QR code string). Final 2 digits of QR code specify stop number. Also includes
-        SensorID, Serial number, Location (if MapsActivity opened since app startup), and local time.
+    of 6-character QR code string). Final 2 digits of QR code specify stop number. Also includes
+    SensorID, Serial number, Location (if MapsActivity opened since app startup), and local time.
     Add points according to QR Code type ('D','P', or 'T' - Daily, Puzzle, or Test)
     David Linn - dlinn@hmc.edu - 12/7/18
+    Richie Harris, Tim Player - rkharris@hmc.edu, tplayer@hmc.edu - 4/6/19
  */
+
 public class QRActivity extends AppCompatActivity {
+
     private static final String LOG_TAG = QRActivity.class.getSimpleName();
     private static final int BARCODE_READER_REQUEST_CODE = 1;
-
     private TextView mResultTextView;
-
     public static SharedPreferences userData;
     public String sharedPrefFile = "com.example.david.alpha";
 
@@ -60,6 +60,8 @@ public class QRActivity extends AppCompatActivity {
         mResultTextView = findViewById(R.id.result_textview);
 
         Button scanBarcodeButton = findViewById(R.id.scan_barcode_button);
+        // Start barcode scanner activity when button is pressed.  Have the activity return the
+        // result of the barcode scan back to this activity
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,6 +71,14 @@ public class QRActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Called when the barcode scanner activity finishes and returns.  Uses the result of the
+     * barcode scan to set the text display.  Calls the groundTruth method.
+     *
+     * @param requestCode The request code passed to startActivityForResult()
+     * @param resultCode The result code specified by the barcode reader, either RESULT_OK or RESULT_CANCELLED
+     * @param data carries the barcode data from the barcode scanner activity
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == BARCODE_READER_REQUEST_CODE) {
@@ -88,6 +98,16 @@ public class QRActivity extends AppCompatActivity {
         } else super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * Sends a JSON request to the Ground Truth spreadsheet.  The sheet returns the character
+     * (letter) representing the scan type, the puzzle answer prerequisite associated with the
+     * QR code if the QR scan was a bonus scan, and the stop number (last 2 digits of the QR scan).
+     * Points are awarded to the user according to the scan type, and whether the scan was a puzzle
+     * scan or a bonus scan.
+     *
+     * @param qrResult the 6 character result obtained from the QR scan.  First 4 characters are
+     *                 the sheet name.  Last 2 characters are the stop number.
+     */
     protected void groundTruth(String qrResult) {
         try {
             //Create queue that accepts requests
@@ -97,7 +117,7 @@ public class QRActivity extends AppCompatActivity {
             url += '?';
             url += "Sheet=" + qrResult.substring(0, 4) + '&';
             String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-            url += "LocalTime=" + currentDateTimeString + '&'; //TO DO: Remove spaces in Date/Time
+            url += "LocalTime=" + currentDateTimeString + '&';
             url += "Stop=" + qrResult.substring(4,6) + '&';
             if (MapsActivity.myPos != null) {
                 url += "Lat=" + MapsActivity.myPos.latitude + '&'; //TO DO: More accurate GPS Position
@@ -109,7 +129,6 @@ public class QRActivity extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT < 26)
                 url += "PhoneSerial=" + Build.SERIAL;
             url = ensureValidURL(url);
-
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -131,7 +150,7 @@ public class QRActivity extends AppCompatActivity {
                                 //Check the JSON response for a "Prerequisite" field. If there is
                                 //a prerequisite, that means the user must have completed a puzzle
                                 // ("prereq") in order to qualify for ten additional points for that
-                                // scan.
+                                // scan.  Also get the scanType and currentScan stop number
                                 String prereq = "";
                                 String scanType = "";
                                 String currentScan = "";
@@ -154,14 +173,12 @@ public class QRActivity extends AppCompatActivity {
                                     Log.e("No StopID field", str);
                                 }
 
-                                if (!prereq.isEmpty()){ //if there is a prerequisite, require it.
+                                if (!prereq.isEmpty()){ //if there is a prerequisite to scan this QR code, require it.
                                     if(UserDataUtils.wasPuzzleCompleted(prereq)){
                                         UserDataUtils.incrementUserQRCodeScore(20);
                                         mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
                                         UserDataUtils.putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
                                         //extra points again.
-
-                                        //ten points for Gryffindor! (also adds ten for being P class code)
                                     }
                                     else {
                                         mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have already used your bonus.");
@@ -170,17 +187,17 @@ public class QRActivity extends AppCompatActivity {
                                 else {
                                     String lastScan = UserDataUtils.getLastScan();
                                     int pointsToAdd = 0;
-                                    if (currentScan.equals(lastScan) == false) {
+                                    if (currentScan.equals(lastScan) == false) { // user cannot scan the same QR code multiple times for points
                                         switch (scanType) {
-                                            case "T":
+                                            case "T": // Test
                                                 pointsToAdd = 4;
                                                 Log.d("QR type", "T");
                                                 break;
-                                            case "D":
+                                            case "D": // Daily
                                                 pointsToAdd = 12;
                                                 Log.d("QR type", "D");
                                                 break;
-                                            case "P":
+                                            case "P": // Puzzle
                                                 pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
                                                 Log.d("QR type", "P");
                                                 break;
@@ -212,9 +229,14 @@ public class QRActivity extends AppCompatActivity {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
+    /**
+     * Obtains the sensor ID of the paired radiation detector for identification in the Ground
+     * Truth Google sheet.
+     *
+     * @return the ID of the paired detector
+     */
     public static String getSensorID() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
@@ -229,6 +251,11 @@ public class QRActivity extends AppCompatActivity {
         return "NoSensorConnected";
     }
 
+    /**
+     * Ensures that the JSON request URL is valid
+     * @param url URL for JSON request
+     * @return the corrected URL if there were any spaces that needed to be changed to + characters
+     */
     public static String ensureValidURL(String url) {
         //Turn all spaces in String into '+' characters
         String s = "";
@@ -240,5 +267,4 @@ public class QRActivity extends AppCompatActivity {
         }
         return s;
     }
-
 }

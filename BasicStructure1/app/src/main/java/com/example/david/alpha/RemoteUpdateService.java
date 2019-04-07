@@ -39,7 +39,12 @@ public class RemoteUpdateService extends IntentService {
         super("Check_Remote_Update");
     }
 
-
+    /**
+     * Checks if the version of the app currently installed on the device is up to date with the
+     * latest version on the Github remote update service.  If not, update the app.
+     *
+     * @param workIntent
+     */
     @Override
     protected void onHandleIntent(Intent workIntent){
         Log.d("Remote Updater", "Work intent initiated");
@@ -74,7 +79,12 @@ public class RemoteUpdateService extends IntentService {
         //}
     }
 
-
+    /**
+     * Gets the number representing the current version of the app.
+     *
+     * @param context Context of the current app process
+     * @return the number for the current version of the app installed on the device
+     */
     public static int getVersionCode(Context context) {
         PackageManager pm = context.getPackageManager();
         try {
@@ -87,7 +97,6 @@ public class RemoteUpdateService extends IntentService {
         return 0;
     }
 
-
     public static String getVersionName(Context context) {
         PackageManager pm = context.getPackageManager();
         try {
@@ -97,13 +106,21 @@ public class RemoteUpdateService extends IntentService {
         return "0";
     }
 
-
+    /**
+     * Gets the url for the Github remote update service
+     *
+     * @return String url for Github update service
+     */
     public static String getVersionFile() {
         String location = GlobalParams.REMOTE_UPDATE_INFOURL;
         return location;
     }
 
-
+    /**
+     * Obtains the most recent version number from the online Github over-the-air update service.
+     *
+     * @return the version number of the most recent version of the app
+     */
     private String downloadText() {
         int BUFFER_SIZE = 2000;
         InputStream in = null;
@@ -140,7 +157,12 @@ public class RemoteUpdateService extends IntentService {
         return str;
     }
 
-
+    /**
+     * Opens an HTTP connection with the Github remote update service url.
+     *
+     * @return The input stream from the HTTP connection with the url
+     * @throws IOException If the HTTP connection failed
+     */
     private InputStream openHttpConnection() throws IOException {
         InputStream in = null;
         int response = -1;
@@ -176,6 +198,4 @@ public class RemoteUpdateService extends IntentService {
         Log.d("openHttpConn","input stream returned");
         return in;
     }
-
-
 }
