@@ -42,8 +42,8 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     public static int userQRCodeScore;
     public static int userTotalScore;
     */
-    public static SharedPreferences userData;
-    public String sharedPrefFile = "com.example.david.alpha";
+    //public static SharedPreferences userData;
+    //public String sharedPrefFile = "com.example.david.alpha";
     private static String PuzzleID;
     private final int MY_SOCKET_TIMEOUT_MS = 10000; // Sets the JSON request wait time to 10 seconds
     // so that it does not time out and repeat the request
@@ -54,7 +54,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
         setContentView(R.layout.activity_puzzle_input);
 

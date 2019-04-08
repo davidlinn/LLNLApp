@@ -46,14 +46,14 @@ public class QRActivity extends AppCompatActivity {
     private static final String LOG_TAG = QRActivity.class.getSimpleName();
     private static final int BARCODE_READER_REQUEST_CODE = 1;
     private TextView mResultTextView;
-    public static SharedPreferences userData;
-    public String sharedPrefFile = "com.example.david.alpha";
+    //public static SharedPreferences userData;
+    //public String sharedPrefFile = "com.example.david.alpha";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
         setContentView(R.layout.activity_qr);
 

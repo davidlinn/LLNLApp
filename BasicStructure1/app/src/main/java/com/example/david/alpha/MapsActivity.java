@@ -295,7 +295,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 waypoint = new LatLng(latitude, longitude);
                                 markopt = new MarkerOptions();
                                 markopt.position(waypoint);
-                                // The first numPuzzleStops latitude/longitude pairs are puzzle stops
+                                // The first "numPuzzleStops" latitude/longitude pairs are puzzle stops
                                 if (i<numPuzzleStops) {
                                     markopt.title("Puzzle#"+Integer.toString(i+1));
                                     markopt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
