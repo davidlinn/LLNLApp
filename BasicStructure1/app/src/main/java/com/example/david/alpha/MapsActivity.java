@@ -251,7 +251,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.ground_truth_script_url);
         url += '?';
-        url += "Sheet=" + "P100" + '&'; // note: need to change sheet name each deployment
+        url += "Sheet=" + "MSTR" + '&'; // note: need to change sheet name each deployment
         url += "RequestType=" + "GetWaypoints";
         url = ensureValidURL(url);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest

@@ -164,7 +164,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.user_database_url);
         url += '?';
-        url += "Sheet=" + "Event2" + '&';
+        url += "Sheet=" + "MSTR" + '&'; //  note: may need to change each deployment
         url += "RequestType=DataPush&";
         url += "SensorID=" + UserDataUtils.getSensorID().substring(5, 9) + '&';
         url += "ActiveMinPoints=" + UserDataUtils.getUserActiveHoursScore() + '&';

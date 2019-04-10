@@ -107,7 +107,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.answer_submission_url);
         url += '?';
-        url += "Sheet=" + "Sheet1" + '&'; // May need to change sheet name for a new deployment
+        url += "Sheet=" + "MSTR" + '&'; // May need to change sheet name for a new deployment
         url += "RequestType=" + "GetPuzzleNames";
         url = ensureValidURL(url);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -174,7 +174,7 @@ public class PuzzleInputActivity extends AppCompatActivity implements AdapterVie
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.answer_submission_url);
         url += '?';
-        url += "Sheet=" + "Sheet1" + '&'; // may need to change for a new deployment
+        url += "Sheet=" + "MSTR" + '&'; // may need to change for a new deployment
         url += "SensorID=" + QRActivity.getSensorID().substring(5, 9) + '&';
         url += "RequestType=" + "AnswerSubmission" + "&";
         url += "PuzzleID=" + PuzzleID + '&';
