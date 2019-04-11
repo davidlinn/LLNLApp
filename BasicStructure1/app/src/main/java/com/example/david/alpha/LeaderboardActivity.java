@@ -51,7 +51,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         //Build URL and query string from JSON object
         String url = getApplicationContext().getString(R.string.user_database_url);
         url += '?';
-        url += "Sheet=" + "Event2" + '&';
+        url += "Sheet=" + "MSTR" + '&'; // may need to change each deployment
         url += "RequestType=Leaderboard";
         url = QRActivity.ensureValidURL(url);
 
