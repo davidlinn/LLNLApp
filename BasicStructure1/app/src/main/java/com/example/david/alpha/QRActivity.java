@@ -197,8 +197,8 @@ public class QRActivity extends AppCompatActivity {
                                                 pointsToAdd = 12;
                                                 Log.d("QR type", "D");
                                                 break;
-                                            case "P": // Puzzle
-                                                pointsToAdd = 5; // make 0 because we add the points already in the JSONRequest.  But no prereqs for daily?
+                                            case "M": // Puzzle.  Changed sheet name to start with MSTR
+                                                pointsToAdd = 5;
                                                 Log.d("QR type", "P");
                                                 break;
                                             default:
