@@ -30,6 +30,16 @@ public class UserDataUtils {
         return getString(key);
     }
 
+    public static void setCounterSteps(int cs){
+        String key = GlobalParams.COUNTER_STEPS_KEY;
+        putInt(key, cs);
+    }
+
+    public static int getCounterSteps(){
+        String key = GlobalParams.COUNTER_STEPS_KEY;
+        return getInt(key);
+    }
+
     //increases ActiveHoursScore and UserTotalScore by 1 in userData
     public static void incrementUserActiveHoursScore(){
         incrementUserActiveHoursScore(1);
@@ -45,7 +55,7 @@ public class UserDataUtils {
 
         incrementUserTotalScore(amount);
 
-        Log.d("scoring", "Active Hours point(s) incremented");
+        Log.d("scoring", "Active Hours point(s) incremented by " + Integer.toString(amount));
     }
 
     //increases userQRCodeScore and UserTotalScore by 1 in userData
@@ -98,14 +108,29 @@ public class UserDataUtils {
     }
 
     public static Boolean wasPuzzleCompleted(String puzzleID){
-        return userData.getBoolean(puzzleID, false);
+        return userData.getBoolean(puzzleID + "_puzzle_completed", false);
     }
 
     public static void setPuzzleCompleted(String puzzleID){
-        putBoolean(puzzleID, true);
+        putBoolean(puzzleID + "_puzzle_completed", true);
     }
 
-    public static void putBoolean(String key, Boolean value){
+    public static Boolean wasBonusCollected(String puzzleID){
+        return userData.getBoolean(puzzleID + "_bonus_collected", false);
+    }
+    public static void setBonusCollected(String puzzleID) {
+        putBoolean(puzzleID + "_bonus_collected", true);
+    }
+
+    public static String getLastScan() {
+        return userData.getString("lastScan","none");
+    }
+
+    public static void setLastScan(String lastScan) {
+        putString("lastScan", lastScan);
+    }
+
+    private static void putBoolean(String key, Boolean value){
         SharedPreferences.Editor editor = userData.edit();
         editor.putBoolean(key, value);
         editor.apply();
@@ -134,14 +159,6 @@ public class UserDataUtils {
         SharedPreferences.Editor editor = userData.edit();
         editor.putString(key, value);
         editor.apply();
-    }
-
-    public static String getLastScan() {
-        return userData.getString("lastScan","none");
-    }
-
-    public static void setLastScan(String lastScan) {
-        putString("lastScan", lastScan);
     }
 
 }

@@ -46,8 +46,6 @@ public class QRActivity extends AppCompatActivity {
     private static final String LOG_TAG = QRActivity.class.getSimpleName();
     private static final int BARCODE_READER_REQUEST_CODE = 1;
     private TextView mResultTextView;
-    //public static SharedPreferences userData;
-    //public String sharedPrefFile = "com.example.david.alpha";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +143,6 @@ public class QRActivity extends AppCompatActivity {
                                 mResultTextView.setText("JSON String returned by server has no field 'result'.");
                             }
                             if (result) {
-                                mResultTextView.setText("Successfully updated Google Sheet");
 
                                 //Check the JSON response for a "Prerequisite" field. If there is
                                 //a prerequisite, that means the user must have completed a puzzle
@@ -175,19 +172,23 @@ public class QRActivity extends AppCompatActivity {
 
                                 if (!prereq.isEmpty()){ //if there is a prerequisite to scan this QR code, require it.
                                     if(UserDataUtils.wasPuzzleCompleted(prereq)){
-                                        UserDataUtils.incrementUserQRCodeScore(20);
-                                        mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
-                                        UserDataUtils.putBoolean(prereq, false); //toggle their prerequisite off so they cannot scan for
-                                        //extra points again.
-                                    }
-                                    else {
-                                        mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have already used your bonus.");
+
+                                        if(UserDataUtils.wasBonusCollected(prereq)){
+                                            mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have already used your bonus.");
+                                        }else{
+                                            UserDataUtils.incrementUserQRCodeScore(20);
+                                            mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
+                                            UserDataUtils.setBonusCollected(prereq);
+                                        }
+
+                                    } else {
+                                        mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have not completed the required puzzle yet.");
                                     }
                                 }
-                                else {
+                                else { // no prerequisite
                                     String lastScan = UserDataUtils.getLastScan();
                                     int pointsToAdd = 0;
-                                    if (currentScan.equals(lastScan) == false) { // user cannot scan the same QR code multiple times for points
+                                    if (!currentScan.equals(lastScan)) { // user cannot scan the same QR code multiple times for points
                                         switch (scanType) {
                                             case "T": // Test
                                                 pointsToAdd = 4;
@@ -199,23 +200,22 @@ public class QRActivity extends AppCompatActivity {
                                                 break;
                                             case "M": // Puzzle.  Changed sheet name to start with MSTR
                                                 pointsToAdd = 5;
-                                                Log.d("QR type", "P");
+                                                Log.d("QR type", "M");
                                                 break;
                                             default:
                                                 break;
                                         }
                                     }
-                                    UserDataUtils.setLastScan(currentScan);
-                                    try {
-                                        UserDataUtils.incrementUserQRCodeScore(pointsToAdd);
-                                    }
-                                    catch (Exception e) {
-                                        mResultTextView.setText("Couldn't add any QR points");
-                                    }
+                                    UserDataUtils.incrementUserQRCodeScore(pointsToAdd);
+                                    mResultTextView.setText("Successfully updated Google Sheet." + "\n" + Integer.toString(pointsToAdd) + " points added.");
+
                                 }
+                                UserDataUtils.setLastScan(currentScan);
                             }
-                            else
+                            else{
                                 mResultTextView.setText("Connected to server but failed to update Google Sheet");
+                            }
+
                         }
                     }, new Response.ErrorListener() {
 

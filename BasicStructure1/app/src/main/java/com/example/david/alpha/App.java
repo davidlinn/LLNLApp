@@ -2,6 +2,7 @@ package com.example.david.alpha;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 
 public class App extends Application {
 

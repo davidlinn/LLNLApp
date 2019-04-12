@@ -50,8 +50,6 @@ import java.util.Set;
 public class ActiveHoursActivity extends AppCompatActivity implements SensorEventListener {
 
     private static boolean sensorRegistered;
-    private static String sensorID;
-    private static int counterSteps; //latest value of the cumulative step sensor
     private static int newSteps = 0;  //steps since last point update
     private static boolean active = false;
 
@@ -98,6 +96,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void onResume() {
         super.onResume();
 
+        Log.d("sensorID", UserDataUtils.getSensorID());
+
         active = false;
         setDisplay();
 
@@ -124,11 +124,20 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
 
-            //Determine number of new steps
-            //the step counter gives the total number of steps
+            int counterSteps = UserDataUtils.getCounterSteps();
+
+            //grab the latest step count from the sensor
             int newCounterSteps = (int) event.values[0];
+
+            //if the counterSteps field is zero, it should be initialized to this
+            //sensor reading.
+            if(counterSteps == 0){
+                counterSteps = newCounterSteps;
+                Log.d("ActiveHours", "counterSteps reset");
+            }
+
             newSteps += newCounterSteps - counterSteps;
-            counterSteps = newCounterSteps;
+            UserDataUtils.setCounterSteps(newCounterSteps);
 
             // if a minimum number of new steps has been reached, assign a new point
             // and reset the number of new steps.
@@ -139,7 +148,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 UserDataUtils.incrementUserActiveHoursScore(pointsToAssign);
                 newSteps %= stp;
 
-                Log.d("ActiveHoursPoints", pointsToAssign + " active hours points assigned");
+                Log.d("ActiveHours", pointsToAssign + " active hours points assigned");
 
             }
 
@@ -165,14 +174,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             int startingIndex = bluetoothDevice.indexOf("SGM");
             if (startingIndex != -1) {
                 Log.d("Sensor", "Sensor paired");
-                BluetoothSocket tmp;
 
-                sensorID = bluetoothDevice.substring(startingIndex);
-                Log.e("SensorID: ", sensorID);
-
-                if (!sensorID.equals(UserDataUtils.getSensorID())) {
-                    UserDataUtils.setSensorID(sensorID);
-                }
+                //eg. blueToothDevice = "D3S SGM104787"
+                //idNum = 4787
+                String idNum = bluetoothDevice.substring(startingIndex + 5, startingIndex + 9);
+                UserDataUtils.setSensorID(idNum);
+                Log.d("SensorID: ", UserDataUtils.getSensorID());
 
                 sensorRegistered = true;
             } else {
@@ -186,7 +193,6 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
      * Attempts to push current userActiveHoursScore and userQRCodeScore to UserDatabase Google Sheet
      * Displays response
      */
-
     public void pushPointsToServer() {
         //Populate the server info view depending on request result
         final TextView InfoDisplay = (TextView) findViewById(R.id.score_serverInfo);
@@ -197,7 +203,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         url += '?';
         url += "Sheet=" + "MSTR" + '&'; //  note: may need to change each deployment
         url += "RequestType=DataPush&";
-        url += "SensorID=" + UserDataUtils.getSensorID().substring(5, 9) + '&';
+        url += "SensorID=" + UserDataUtils.getSensorID() + '&';
         url += "ActiveMinPoints=" + UserDataUtils.getUserActiveHoursScore() + '&';
         url += "QRCodePoints=" + UserDataUtils.getUserQRCodeScore();
         url = ensureValidURL(url);
@@ -207,7 +213,7 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                     @Override
                     public void onResponse(JSONObject response) {
                         String str = response.toString();
-                        Log.e("QR JSON response", str);
+                        Log.d("QR JSON response", str);
                         boolean result = false;
                         try {
                             result = response.getString("result").equals("success");
@@ -249,11 +255,11 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     }
 
     public void updateActiveHoursDisplay() {
-        //set QRDisplay to display the Active Hours score
+        //set activeHoursDisplay to display the Active Hours score
         String activeHoursScoreString = Integer.toString(UserDataUtils.getUserActiveHoursScore());
-        TextView activeDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
-        activeDisplay.setBackgroundColor(Color.LTGRAY);
-        activeDisplay.setText(activeHoursScoreString);
+        TextView activeHoursDisplay = (TextView) findViewById(R.id.score_activeHoursDisplay);
+        activeHoursDisplay.setBackgroundColor(Color.LTGRAY);
+        activeHoursDisplay.setText(activeHoursScoreString);
     }
 
     public void updateTotalScoreDisplay() {

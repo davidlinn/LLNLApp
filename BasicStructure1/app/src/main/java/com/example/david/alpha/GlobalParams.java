@@ -9,11 +9,8 @@ public enum GlobalParams {;
     public static final long MILLIS_TO_MINUTES = 1000; // Converts ACTIVE_CUTOFF from milliseconds to minutes.
 
     public static final int STEPS_PER_POINT = 15;
-    public static final int ACC_SAMPLE_SIZE = 50;
 
-    public static final double ACC_THRESHOLD = .9;
-    public static final double ACC_CUTOFF = 20;
-
+    public static final String COUNTER_STEPS_KEY = "User_CounterSteps";
     public static final String ACTIVEHOURS_SCORE_KEY = "User_ActiveHoursScore";
     public static final String QRCODE_SCORE_KEY = "User_QRCodeScore";
     public static final String TOTAL_SCORE_KEY = "User_TotalScore";
