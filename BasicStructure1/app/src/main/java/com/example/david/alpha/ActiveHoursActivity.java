@@ -26,26 +26,26 @@ import org.json.JSONObject;
 
 import java.util.Set;
 
-/*
-    Active Hours Activity:
-    Continuously determine whether user is earning active detector minutes
-    Keep track of points
-    Pushes points to UserDatabase Google Sheet each time activity is opened
-    Details of active hours algorithm:
-        Uses SensorManager class to listen to updates from a sensor (calls onSensorChanged() at each
-            update)
-        In onSensorChanged(): Accumulates difference in magnitude of accelerometer readings until
-            we've gathered SAMPLE_SIZE readings, at which point we find the average difference in
-            accelerometer magnitude over the sampling period and determine if greater than threshold.
-            Implementation based off [link]
-        Checks whether a sensor is currently connected to the phone with BTReciever class (check is
-            currently disabled by setting outputs of all sensor checks to true)
-    2nd semester to-do:
-        Fine-tune active hours algorithm, potentially employ machine learning methods discussed in
-            ___ article at [link]
-        Secure score- ensure user is unable to edit locally or find a way to intercept push to Google
-            Sheets
-    Josh Morgan, David Linn - jmorgan@hmc.edu, dlinn@hmc.edu - 12/7/18
+/**
+ * Active Hours Activity:
+ *     Continuously determine whether user is earning active detector minutes
+ *     Keep track of points
+ *     Pushes points to UserDatabase Google Sheet each time activity is opened
+ *     Details of active hours algorithm:
+ *         Uses SensorManager class to listen to updates from a sensor (calls onSensorChanged() at each
+ *             update)
+ *         In onSensorChanged(): Accumulates difference in magnitude of accelerometer readings until
+ *             we've gathered SAMPLE_SIZE readings, at which point we find the average difference in
+ *             accelerometer magnitude over the sampling period and determine if greater than threshold.
+ *             Implementation based off [link]
+ *         Checks whether a sensor is currently connected to the phone with BTReciever class (check is
+ *             currently disabled by setting outputs of all sensor checks to true)
+ *     2nd semester to-do:
+ *         Fine-tune active hours algorithm, potentially employ machine learning methods discussed in
+ *             ___ article at [link]
+ *         Secure score- ensure user is unable to edit locally or find a way to intercept push to Google
+ *             Sheets
+ *     Josh Morgan, David Linn - jmorgan@hmc.edu, dlinn@hmc.edu - 12/7/18
  */
 public class ActiveHoursActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -55,6 +55,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     private static int newSteps = 0;  //steps since last point update
     private static boolean active = false;
 
+    /**
+     * Called when ActiveHoursActivity is created.
+     * Sets the XML file, registers the step counter sensor, and verifies that the sensor has been
+     * paired before updating the UI.
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,6 +90,10 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         setDisplay();
     }
 
+    /**
+     * Called when the Activity is re-opened. Assumes user is inactive (red display) and updates
+     * display.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -94,11 +104,22 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         pushPointsToServer();
     }
 
+    /**
+     * Required method of SensorEventListener. Does nothing.
+     * @param sensor
+     * @param num
+     */
     public void onAccuracyChanged(Sensor sensor, int num) {
         Log.d("accelerometer ", "accuracy changed");
     }
 
 
+    /**
+     * onSensorChanged responds to the broadcasted SensorEvent by increasing the user's Active
+     * Hours Points by the amount defined in GlobalParams.STEPS_PER_POINT. Here, we assert that
+     * there is a linear correspondence between steps taken and time spent active.
+     * @param event
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
@@ -129,6 +150,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     }
 
 
+    /**
+     * Sets sensorRegistered.
+     * Specifically, this method queries Android's bluetooth service to find what bluetooth devices have been previously
+     * bonded with the phone. If that list includes a Kromek sensor (containing "SGM"), then
+     * sensorRegistered is set to true.
+     */
     public void checkAttached() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
@@ -140,7 +167,8 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
                 Log.d("Sensor", "Sensor paired");
                 BluetoothSocket tmp;
 
-                sensorID = bluetoothDevice;
+                sensorID = bluetoothDevice.substring(startingIndex);
+                Log.e("SensorID: ", sensorID);
 
                 if (!sensorID.equals(UserDataUtils.getSensorID())) {
                     UserDataUtils.setSensorID(sensorID);
@@ -154,8 +182,11 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
 
     }
 
-    //Attempts to push current userActiveHoursScore and userQRCodeScore to UserDatabase Google Sheet
-    //Displays response
+    /**
+     * Attempts to push current userActiveHoursScore and userQRCodeScore to UserDatabase Google Sheet
+     * Displays response
+     */
+
     public void pushPointsToServer() {
         //Populate the server info view depending on request result
         final TextView InfoDisplay = (TextView) findViewById(R.id.score_serverInfo);
