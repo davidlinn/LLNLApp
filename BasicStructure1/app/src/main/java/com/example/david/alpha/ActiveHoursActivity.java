@@ -129,24 +129,26 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
             //grab the latest step count from the sensor
             int newCounterSteps = (int) event.values[0];
 
+            newSteps += newCounterSteps - counterSteps;
+
             //if the counterSteps field is zero, it should be initialized to this
             //sensor reading.
-            if(counterSteps == 0){
+            if(counterSteps == 0 || newSteps > 3000){
                 counterSteps = newCounterSteps;
+                newSteps = 0;
                 Log.d("ActiveHours", "counterSteps reset");
             }
 
-            newSteps += newCounterSteps - counterSteps;
             UserDataUtils.setCounterSteps(newCounterSteps);
 
             // if a minimum number of new steps has been reached, assign a new point
             // and reset the number of new steps.
-            int stp = GlobalParams.STEPS_PER_POINT;
-            if (newSteps > stp) {
+            int spp = GlobalParams.STEPS_PER_POINT;
+            if (newSteps > spp) {
 
-                int pointsToAssign = newSteps / stp;
+                int pointsToAssign = newSteps / spp;
                 UserDataUtils.incrementUserActiveHoursScore(pointsToAssign);
-                newSteps %= stp;
+                newSteps %= spp;
 
                 Log.d("ActiveHours", pointsToAssign + " active hours points assigned");
 
