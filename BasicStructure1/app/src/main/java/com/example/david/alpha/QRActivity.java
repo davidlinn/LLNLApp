@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import android.webkit.WebView;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -85,8 +87,14 @@ public class QRActivity extends AppCompatActivity {
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     Point[] p = barcode.cornerPoints;
                     mResultTextView.setText(barcode.displayValue);
+                    Log.d("qr substring", barcode.displayValue.substring(0,4));
                     if (barcode.displayValue.length() == 6) {//QR codes should return String of len 6
                         groundTruth(barcode.displayValue);
+                    }
+                    else if (barcode.displayValue.substring(0,4).equals("http")) {// puzzle website
+                        WebView webview = new WebView(this);
+                        setContentView(webview);
+                        webview.loadUrl(barcode.displayValue);
                     }
                     else
                         mResultTextView.setText(barcode.displayValue+", Invalid QR code");
