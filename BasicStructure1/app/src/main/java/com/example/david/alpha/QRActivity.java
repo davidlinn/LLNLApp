@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -92,9 +93,10 @@ public class QRActivity extends AppCompatActivity {
                         groundTruth(barcode.displayValue);
                     }
                     else if (barcode.displayValue.substring(0,4).equals("http")) {// puzzle website
-                        WebView webview = new WebView(this);
-                        setContentView(webview);
-                        webview.loadUrl(barcode.displayValue);
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(barcode.displayValue)));
+//                        WebView webview = new WebView(this);
+//                        setContentView(webview);
+//                        webview.loadUrl(barcode.displayValue);
                     }
                     else
                         mResultTextView.setText(barcode.displayValue+", Invalid QR code");
