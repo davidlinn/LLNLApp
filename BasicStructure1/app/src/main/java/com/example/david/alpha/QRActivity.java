@@ -189,7 +189,7 @@ public class QRActivity extends AppCompatActivity {
                                             mResultTextView.setText("Successfully updated Google Sheet." + "\nYou have already used your bonus.");
                                         }else{
                                             UserDataUtils.incrementUserQRCodeScore(20);
-                                            mResultTextView.setText("Successfully updated Google Sheet. You got bonus points!" + "\nYou have used your bonus.");
+                                            mResultTextView.setText("Successfully updated Google Sheet. You got 20 bonus points!" + "\nYou have used your bonus.");
                                             UserDataUtils.setBonusCollected(prereq);
                                         }
 
