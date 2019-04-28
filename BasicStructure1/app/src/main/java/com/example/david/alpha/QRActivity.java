@@ -93,7 +93,9 @@ public class QRActivity extends AppCompatActivity {
                         groundTruth(barcode.displayValue);
                     }
                     else if (barcode.displayValue.substring(0,4).equals("http")) {// puzzle website
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(barcode.displayValue)));
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(barcode.displayValue));
+                        intent.setPackage("com.android.chrome");
+                        startActivity(intent);
 //                        WebView webview = new WebView(this);
 //                        setContentView(webview);
 //                        webview.loadUrl(barcode.displayValue);
