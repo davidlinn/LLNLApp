@@ -96,9 +96,6 @@ public class QRActivity extends AppCompatActivity {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(barcode.displayValue));
                         intent.setPackage("com.android.chrome");
                         startActivity(intent);
-//                        WebView webview = new WebView(this);
-//                        setContentView(webview);
-//                        webview.loadUrl(barcode.displayValue);
                     }
                     else
                         mResultTextView.setText(barcode.displayValue+", Invalid QR code");
