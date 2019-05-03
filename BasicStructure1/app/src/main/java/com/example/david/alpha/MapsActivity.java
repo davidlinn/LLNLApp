@@ -40,14 +40,14 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-/*
-    Maps Activity:
-    Displays location given by the user's current position and the location of the puzzles and bonus
-    QR codes in the hunt.
-    Josh Morgan, David Linn - jmorgan@hmc.edu, dlinn@hmc.edu - 12/7/18
-    Richie Harris, Tim Player - rkharris@hmc.edu, tplayer@hmc.edu - 4/6/19
- */
 
+/**
+ *     Maps Activity:
+ *     Displays location given by the user's current position and the location of the puzzles and bonus
+ *     QR codes in the hunt.
+ *     Josh Morgan, David Linn - jmorgan@hmc.edu, dlinn@hmc.edu - 12/7/18
+ *     Richie Harris, Tim Player - rkharris@hmc.edu, tplayer@hmc.edu - 4/6/19
+ */
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;

@@ -6,6 +6,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
+/**
+ * Boilerplate code for handling app crashes from https://medium.com/@FizzyInTheHall/building-a-production-android-app-6-exception-handling-e5c008a8c97c
+ */
 public class ApplicationCrashHandler implements Thread.UncaughtExceptionHandler {
     /**
      * Storage for the original default crash handler.

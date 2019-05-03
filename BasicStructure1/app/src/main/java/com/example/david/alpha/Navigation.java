@@ -13,28 +13,30 @@ import android.util.Log;
 
 import java.net.URL;
 
-/*
-    Navigation Activity:
-    Initializes crash handler (catches exceptions not caught by try/catch blocks)
-    Checks for remote updates
-    Provides user with navigation bar
-    Note: Upon app startup, user must open ActiveHoursActivity to initiate scoring. User must open
-        MapsActivity to initiate location tracking before scanning QR Codes.
-    2nd semester to-do:
-        User does not need to open other activities to initiate scoring/location tracking. Upon phone
-        startup, user should be earning active detector hours and be able to go directly to the QR
-        Code tab to scan a QR code.
-        Better UI: Potentially have large blocks to jump to various activities rather than a bottom
-            navigation bar that disappears when moving to other activities
-    David Linn, Joshua Morgan - dlinn@hmc.edu, jmorgan@hmc.edu - 12/7/18
+
+/**
+ * Navigation Activity:
+ *     Initializes crash handler (catches exceptions not caught by try/catch blocks)
+ *     Checks for remote updates
+ *     Provides user with navigation bar
+ *     Note: Upon app startup, user must open ActiveHoursActivity to initiate scoring. User must open
+ *         MapsActivity to initiate location tracking before scanning QR Codes.
  */
 public class Navigation extends AppCompatActivity {
 
     private TextView mTextMessage;
 
+    /**
+     * The menu on the bottom of the screen.
+     */
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
+        /**
+         * Defines the app behavior when a button from the menu is selected.
+         * @param item
+         * @return
+         */
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
@@ -42,12 +44,10 @@ public class Navigation extends AppCompatActivity {
                 case R.id.navigation_scoring:
                     Intent homeIntent = new Intent(getApplicationContext(), ActiveHoursActivity.class);
                     startActivity(homeIntent);
-                    //mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_puzzles:
                     Intent puzzleIntent = new Intent(getApplicationContext(), PuzzleInputActivity.class);
                     startActivity(puzzleIntent);
-                    //mTextMessage.setText("Puzzles");
                     return true;
                 case R.id.navigation_qrScanner:
                     Intent qrIntent = new Intent(getApplicationContext(), QRActivity.class);
@@ -66,6 +66,11 @@ public class Navigation extends AppCompatActivity {
         }
     };
 
+    /**
+     * onCreate method for this Activity installs the crash handler, checks for a remote update, and
+     * instantiates the bottom menu.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         final String TAG = "MainActivity";
@@ -92,9 +97,6 @@ public class Navigation extends AppCompatActivity {
 
             Log.d("update", "Update failed");
         }
-
-        //Register new service for ActiveHours
-
         // Set layout
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);

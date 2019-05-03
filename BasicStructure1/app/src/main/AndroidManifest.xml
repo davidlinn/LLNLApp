@@ -26,6 +26,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         //TODO: ELIMINATE SERVICE REGISTRATION IF IT DOES NOT WORK
+
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+
         <service
             android:name=".RemoteUpdateService"
             android:exported="false" />

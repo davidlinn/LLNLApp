@@ -84,8 +84,6 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         // Verify that a bluetooth device has been paired
         checkAttached();
 
-        // Update all UI elements
-        setDisplay();
     }
 
     /**
@@ -96,12 +94,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
     public void onResume() {
         super.onResume();
 
-        Log.d("sensorID", UserDataUtils.getSensorID());
+        pushPointsToServer();
 
         active = false;
         setDisplay();
 
-        pushPointsToServer();
+
     }
 
     /**
@@ -249,6 +247,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         queue.add(jsonObjectRequest);
     }
 
+    /**
+     * Updates each of the four Textviews: ActiveHours, QR, SensorReg, and TotalScore
+     */
     public void setDisplay() {
         updateActiveHoursDisplay();
         updateQRDisplay();
@@ -256,6 +257,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         updateTotalScoreDisplay();
     }
 
+    /**
+     * Updates ActiveHours Textview
+     */
     public void updateActiveHoursDisplay() {
         //set activeHoursDisplay to display the Active Hours score
         String activeHoursScoreString = Integer.toString(UserDataUtils.getUserActiveHoursScore());
@@ -264,6 +268,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         activeHoursDisplay.setText(activeHoursScoreString);
     }
 
+    /**
+     * Updates Total Score Textview
+     */
     public void updateTotalScoreDisplay() {
         //set totalScoreDisplay to display total score
         String totalScoreString = Integer.toString(UserDataUtils.getUserTotalScore());
@@ -274,6 +281,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         totalScoreDisplay.setText(totalScoreString);
     }
 
+    /**
+     * Updates QR Score Textview
+     */
     public void updateQRDisplay() {
         //set activeDisplay to display whether the user is active
         String QRScoreString = Integer.toString(UserDataUtils.getUserQRCodeScore());
@@ -282,6 +292,9 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         QRDisplay.setText(QRScoreString);
     }
 
+    /**
+     * Updates SensorReg Textview
+     */
     public void updateRegisteredDisplay() {
         //set sensorReg TextView according to sensorRegistered
         TextView sensorReg = findViewById(R.id.score_sensorRegistered);
@@ -295,8 +308,12 @@ public class ActiveHoursActivity extends AppCompatActivity implements SensorEven
         }
     }
 
+    /**
+     * Turn all spaces in String url into '+' characters
+     * @param url String to replace whitespaces of
+     * @return String with whitespaces replaced with '+'
+     */
     public static String ensureValidURL(String url) {
-        //Turn all spaces in String into '+' characters
         String s = "";
         for (char c : url.toCharArray()) {
             if (c == ' ')

@@ -33,15 +33,15 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Set;
 
-/*
-    QR Activity:
-    Scans a QR Code using classes in barcode and camera directories
-    Pushes ground truth to Ground Truth database, sheet specified by 4-character code (first 4 characters
-    of 6-character QR code string). Final 2 digits of QR code specify stop number. Also includes
-    SensorID, Serial number, Location (if MapsActivity opened since app startup), and local time.
-    Add points according to QR Code type ('D','P', or 'T' - Daily, Puzzle, or Test)
-    David Linn - dlinn@hmc.edu - 12/7/18
-    Richie Harris, Tim Player - rkharris@hmc.edu, tplayer@hmc.edu - 4/6/19
+/**
+ *    QR Activity:
+ *     Scans a QR Code using classes in barcode and camera directories
+ *     Pushes ground truth to Ground Truth database, sheet specified by 4-character code (first 4 characters
+ *     of 6-character QR code string). Final 2 digits of QR code specify stop number. Also includes
+ *     SensorID, Serial number, Location (if MapsActivity opened since app startup), and local time.
+ *     Add points according to QR Code type ('D','P', or 'T' - Daily, Puzzle, or Test)
+ *     David Linn - dlinn@hmc.edu - 12/7/18
+ *     Richie Harris, Tim Player - rkharris@hmc.edu, tplayer@hmc.edu - 4/6/19
  */
 
 public class QRActivity extends AppCompatActivity {
