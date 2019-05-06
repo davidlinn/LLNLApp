@@ -46,7 +46,7 @@ There are four key sources of documentation. A developer's workflow will involve
    - The "Tau System Architecture" document in this directory, which provides information about the app's Activities and their interactions with the Google Sheets database.
    - The JavaDoc. You must generate the JavaDoc in Android Studio by selecting `Tools -> Generate Javadoc`. This resource is the primary starting point for understanding the interaction of app components.
 3. Implementation specifics
-   - The code provided in `com.hmc.tau.alpha`, as well as the included comments, has been created with readability and maintainability in mind. Incoming developers should be able to parse our intention and execution from the source.
+   - The code provided in `com.hmc.tau.alpha`, as well as the included comments, has been created with readability and maintainability in mind. Incoming developers should be able to parse our intention and execution from the source. Please note that, due to Android conventions, it can be hard to parse the file structure of the provided code. We recommend viewing the app code in Android Studio; it is more natural to navigate resources there instead of manually viewing `App Components/TauApp/app/src/main/java/com/hmc/tau/alpha/` on Github.
    - The Google Scripts code in the Server Components directory provides the specifics of server-side data handling.
 
 ## External Documentation
