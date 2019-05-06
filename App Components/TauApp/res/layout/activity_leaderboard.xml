@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.hmc.tau.alpha.LeaderboardActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FDF0D">
+
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="392dp"
+        android:layout_height="626dp"
+        android:layout_marginTop="4dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow android:padding="5dp">
+
+            <TextView
+                android:layout_width="199dp"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/amiko_semibold"
+                android:text="User Name"
+                android:textAlignment="viewStart"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="30sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/amiko_semibold"
+                android:text="Score"
+                android:textAlignment="viewStart"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="30sp" />
+
+        </TableRow>
+
+        <TableRow android:padding="5dp">
+
+            <TextView
+                android:id="@+id/name0"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="Name"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/score0"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="500"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+        </TableRow>
+
+        <TableRow android:padding="5dp">
+
+            <TextView
+                android:id="@+id/name1"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:text="Name"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/score1"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="400"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+        </TableRow>
+
+        <TableRow android:padding="5dp">
+
+            <TextView
+                android:id="@+id/name2"
+                android:layout_width="231dp"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="Name"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/score2"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="300"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+        </TableRow>
+
+        <TableRow android:padding="5dp">
+
+            <TextView
+                android:id="@+id/name3"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="Name"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/score3"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="200"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+        </TableRow>
+
+        <TableRow android:padding="5dp">
+
+            <TextView
+                android:id="@+id/name4"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="Name"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/score4"
+                android:layout_width="wrap_content"
+                android:layout_height="70dp"
+                android:layout_weight="1"
+                android:text="200"
+                android:textAlignment="viewStart"
+                android:textColor="#D81E5B"
+                android:textSize="24sp" />
+        </TableRow>
+    </TableLayout>
+
+</android.support.constraint.ConstraintLayout>
