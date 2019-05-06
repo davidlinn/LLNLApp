@@ -20,7 +20,7 @@ public class UserDataUtils {
     /**
      * The package path of the SharedPreferences object
      */
-    private static String sharedPrefFile = "com.example.david.alpha";
+    private static String sharedPrefFile = "com.hmc.tau.alpha";
 
     /**
      * The SharedPreferences object in which all of the user's information is stored
