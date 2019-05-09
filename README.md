@@ -12,7 +12,7 @@ Also included in this repository is a set of Python data visualization tools for
 
 #### Puzzle Hunt Content
 1. Print off the Puzzle QR Scans PDF and Bonus QR Scans PDF documents. `.doc` formats are provided for future development, but the PDFs are better formatted. 
-   - Currently, the Puzzle QR Scan codes labeled "scan this QR code to access the puzzle" contain links to copies of the puzzles hosted on Harvey Mudd's Google Drive account. If you wish to change the puzzles or host them at a different location, you may use the included `makeqr.py` script to generate new QR codes.
+   - Currently, the Puzzle QR Scan codes labeled "scan this QR code to access the puzzle" contain links to copies of the puzzles hosted on Harvey Mudd's Google Drive account. If you wish to change the puzzles or host them at a different location, you may use the included `makeqr.py` script to generate new QR codes or online QR code generators.
 
 #### Google Sheets
 1. Create new Google Sheets named "Answer Submission", "Ground Truth", and "UserDatabase". Name the sheet tab "MSTR".
@@ -20,7 +20,7 @@ Also included in this repository is a set of Python data visualization tools for
 3. For each sheet, select `Tools -> Script editor` to create a new script. Copy the contents of `Code.gs` (located in the folder for each sheet) into its respective script editor.
 4. Select `View -> Show` manifest file to cause `appsscript.json` to appear in the script editor. Copy the contents of the local file into that script editor to enable permissions.
 5. Select `File -> Manage Versions` and create a numbered version of your script.
-6. Select `Publish -> Deploy` as web app to activate the sheet-connected Google Script and recieve a URL to submit JSON requests to.
+6. Select `Publish -> Deploy as web app`.  Select the new project version and allow access to anyone, even anonymous to activate the sheet-connected Google Script and recieve a URL to submit JSON requests to.
 
 ## Usage
 After installing the app on phones, printing off the QR scans, and creating the Google Sheets, the system is ready to deploy. To deploy, you must place the QR code scans and radioactive sources, distribute the phones and sensors, and brief participants.
@@ -30,14 +30,14 @@ After installing the app on phones, printing off the QR scans, and creating the 
   - Physically place the QR scans and sources at the designated locations. Verify that the GPS location agrees with your specification from the spreadsheet.
 - Distibruting sensors:
   - When phones are distributed to participants, make sure that the UserDatabase sheet is populated with each phone's Sensor ID (the last four digits of the Kromek D3S serial number) and the user's name. This will allow a user's score on the phone to be synchronized with the remote database.
-  - Before releasing the phones, make sure the sensor is showing up on DTECT. You can use the Sigma App's "Sigma Service" page to diagnose connectivity.
+  - Before releasing the phones, make sure the sensor is showing up on DTECT. You can use the Sigma App's "Sigma Service" page to diagnose connectivity.  To reset a user's point total to zero, go to `Settings -> Apps -> Tau -> Storage -> Clear Data`.
 - Briefing participants:
   - Walk participants through the information in the "Participant Briefing" document. Ensure that they open the Maps activity to start location services. Direct them to scan the first Puzzle QR code scan and view the first puzzle. From there, they can complete the puzzle independently.
 
 ## Development
 Future development teams may want to make small changes to the app, or they may want to completely redesign it. In either case, we have provided documentation with the goal of providing sufficient information for developers to reproduce or modify the architecture of the Tau system.
 
-There are four key sources of documentation. A developer's workflow will involve first reading the high-level documentation, then delving into the specifics of implementation and reading the code. Here are resources representative of every level of documentation.
+There are four key sources of documentation. A developer's workflow will involve first reading the high-level documentation, then delving into the specifics of implementation by directly reading the code. Here are resources representative of every level of documentation.
 
 1. High-level documentation
    - This README document
