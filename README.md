@@ -1,6 +1,6 @@
 # Tau Puzzle Hunt Deployment System
 
-Tau refers to an Android App and Google Scripts backend code created by Harvey Mudd College students for Lawrence Livermore National Laboratory. The Tau system allows organizers to set up a puzzle hunt to incentivize users to walk around an area while carrying Kromek D3S radiation sensors to collect training data. On the app, users can submit answers, view their score, and scan QR codes among other features. The Google Scripts backend records the metadata of QR code scans (chiefly, time and GPS location to pair with the radiation data), keeps track of user scores, and checks submitted answers.
+Tau refers to an Android App and Google Scripts backend code created by Harvey Mudd College students for Lawrence Livermore National Laboratory. The Tau system allows organizers to set up a puzzle hunt to incentivize users to walk around an area while carrying Kromek D3S radiation sensors to collect training data. On the app, users can submit answers, view their score, and scan QR codes among other features. The Google Scripts backend records the metadata of QR code scans (chiefly, time, QR stop, and GPS location to pair with the radiation data), keeps track of user scores, and checks submitted answers.
 
 Also included in this repository is a set of Python data visualization tools for analyzing data collected via the Tau system and DTECT. Additionally, puzzle hunt content (such as puzzles and QR scan sheets) is provided.
 
