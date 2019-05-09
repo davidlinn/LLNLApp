@@ -29,7 +29,7 @@ After installing the app on phones, printing off the QR scans, and creating the 
   - On Google Maps, locate the spots you wish to place the puzzle QR code scans, bonus QR code scans, and radioactive sources. Record the latitude and longitude of each in the Ground Truth database.
   - Physically place the QR scans and sources at the designated locations. Verify that the GPS location agrees with your specification from the spreadsheet.
 - Distibruting sensors:
-  - When phones are distributed to participants, make sure that the UserDatabase sheet is populated with each phone's Sensor ID (the last four digits of the Kromek D3S serial number) and the user's name. This will allow a user's score on the phone to be synchronized with the remote database.
+  - When phones are distributed to participants, make sure that the UserDatabase sheet is populated with each phone's Sensor ID (the last four digits of the Kromek D3S serial number) and the user's name. This will allow a user's score on the phone to be synchronized with the remote database.  If the sensor ID begins with a zero, format the cell as plain text so that the leading zero is not truncated.
   - Before releasing the phones, make sure the sensor is showing up on DTECT. You can use the Sigma App's "Sigma Service" page to diagnose connectivity.  To reset a user's point total to zero, go to `Settings -> Apps -> Tau -> Storage -> Clear Data`.
 - Briefing participants:
   - Walk participants through the information in the "Participant Briefing" document. Ensure that they open the Maps activity to start location services. Direct them to scan the first Puzzle QR code scan and view the first puzzle. From there, they can complete the puzzle independently.
