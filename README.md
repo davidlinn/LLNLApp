@@ -12,7 +12,7 @@ Also included in this repository is a set of Python data visualization tools for
    - If an over-the-air (OTA) update is desired, then the puzzle organizer must:
      1. Make a deployment Git Repo for OTA updates and name it App-deploy. Model it on the App-deploy directory we have included in this project.
      2. Increment the number stored in versionInfo.txt in the app-deploy repo.
-     3. Increment the version number in app's `build.gradle` file.
+     3. Increment the version number in app's `build.gradle` file within the app directory.
      4. Generate a signed APK via Build -> Generate Signed Bundle or APK. Select APK. Specify a keystore path and password. Add the generated `.apk` file to the App-deploy repo.
      5. Increment the version number in versionInfo.txt
         - versionInfo.txt must not end in a newline
