@@ -32,27 +32,14 @@ import org.json.JSONObject;
  */
 
 public class PuzzleInputActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-    /*
-    I removed these. -Tim, 3/7/19
-    //these values are taken from the userPreferences object that is set in
-    //ActiveHoursActivity
-    private static int userActiveHoursScore;
-    public static int userQRCodeScore;
-    public static int userTotalScore;
-    */
-    //public static SharedPreferences userData;
-    //public String sharedPrefFile = "com.example.david.alpha";
+
     private static String PuzzleID;
     private final int MY_SOCKET_TIMEOUT_MS = 10000; // Sets the JSON request wait time to 10 seconds
     // so that it does not time out and repeat the request
 
-    //private static String Puzzle1;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //userData = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
 
         setContentView(R.layout.activity_puzzle_input);
 
